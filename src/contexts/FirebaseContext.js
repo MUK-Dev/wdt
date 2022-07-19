@@ -39,6 +39,7 @@ export const FirebaseProvider = ({ children }) => {
     lname: '',
     company: '',
     avatar: '',
+    verified: false,
   });
 
   useEffect(
@@ -55,6 +56,7 @@ export const FirebaseProvider = ({ children }) => {
                 name: user.displayName,
                 company: userInfo.company,
                 avatar: user.photoURL,
+                verified: user.emailVerified ?? false,
               },
             },
           });
@@ -71,6 +73,7 @@ export const FirebaseProvider = ({ children }) => {
                 name: `${userInfo.fname} ${userInfo.lname}`,
                 company: userInfo.company,
                 avatar: userInfo.avatar_url,
+                verified: user.emailVerified ?? false,
               },
             },
           });
@@ -95,6 +98,7 @@ export const FirebaseProvider = ({ children }) => {
       lname: userInfo.lname,
       company: userInfo.company,
       avatar: userInfo.avatar_url,
+      verified: user.user.emailVerified,
     });
     return user;
   };
@@ -104,7 +108,8 @@ export const FirebaseProvider = ({ children }) => {
 
     const auth = await firebase.auth().signInWithPopup(provider);
     const uid = firebase.auth().currentUser?.uid;
-    if (uid) {
+    const uInfo = await getDoc(doc(db, 'profiles', uid));
+    if (uid && !uInfo.exists) {
       const profile = {
         created: new Date(),
         company: '',
@@ -118,7 +123,9 @@ export const FirebaseProvider = ({ children }) => {
     const auth = await firebase
       .auth()
       .createUserWithEmailAndPassword(email, password);
+    auth.user.sendEmailVerification();
     const uid = firebase.auth().currentUser.uid;
+    const verified = firebase.auth().currentUser.emailVerified;
     const avatar_url = `https://avatars.dicebear.com/api/bottts/:${uid}.svg`;
     const profile = {
       created: new Date(),
@@ -128,7 +135,13 @@ export const FirebaseProvider = ({ children }) => {
       company: company ?? '',
     };
     await setDoc(doc(db, 'profiles', uid), profile);
-    setUserInfo({ fname, lname, avatar: avatar_url, company: company ?? '' });
+    setUserInfo({
+      fname,
+      lname,
+      avatar: avatar_url,
+      company: company ?? '',
+      verified,
+    });
     return auth;
   };
 

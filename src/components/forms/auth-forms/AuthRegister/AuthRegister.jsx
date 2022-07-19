@@ -40,7 +40,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 // ===========================|| FIREBASE - REGISTER ||=========================== //
 
-const AuthRegister = ({ ...others }) => {
+const AuthRegister = ({ setIsLoading, ...others }) => {
   const navigate = useNavigate();
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
@@ -52,10 +52,13 @@ const AuthRegister = ({ ...others }) => {
   const { firebaseRegister, firebaseGoogleSignIn } = useAuth();
 
   const googleHandler = async () => {
+    setIsLoading(true);
     try {
       await firebaseGoogleSignIn();
+      setIsLoading(false);
       navigate('/home');
     } catch (err) {
+      setIsLoading(false);
       console.error(err);
     }
   };
@@ -169,6 +172,7 @@ const AuthRegister = ({ ...others }) => {
           lname: Yup.string().required('Last name is required'),
         })}
         onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
+          setIsLoading(true);
           try {
             await firebaseRegister(
               values.email,
@@ -177,9 +181,13 @@ const AuthRegister = ({ ...others }) => {
               values.company,
               values.password
             ).then(
-              () => navigate('/home'),
+              () => {
+                setIsLoading(false);
+                navigate('/home');
+              },
               (err) => {
-                console.log(err.code);
+                setIsLoading(false);
+                console.log(err.message);
                 setStatus({ success: false });
                 if (err.code === 'auth/email-already-in-use')
                   setErrors({ email: 'Email Address already in use' });
@@ -190,6 +198,7 @@ const AuthRegister = ({ ...others }) => {
               }
             );
           } catch (err) {
+            setIsLoading(false);
             setStatus({ success: false });
             setErrors({ submit: 'Something went wrong' });
             setSubmitting(false);

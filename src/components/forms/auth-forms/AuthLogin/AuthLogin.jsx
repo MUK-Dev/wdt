@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
@@ -28,7 +28,6 @@ import { Formik } from 'formik';
 
 // project imports
 import useAuth from '../../../../hooks/useAuth';
-import useScriptRef from '../../../../hooks/useScriptRef';
 import AnimateButton from '../../../ui/AnimateButton';
 
 // assets
@@ -39,7 +38,7 @@ import Google from '../../../../assets/images/icons/social-google.svg';
 
 // ============================|| FIREBASE - LOGIN ||============================ //
 
-const AuthLogin = ({ loginProp, ...others }) => {
+const AuthLogin = ({ loginProp, setIsLoading, ...others }) => {
   const theme = useTheme();
   const navigate = useNavigate();
   const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
@@ -47,11 +46,14 @@ const AuthLogin = ({ loginProp, ...others }) => {
 
   const { firebaseEmailPasswordSignIn, firebaseGoogleSignIn } = useAuth();
   const googleHandler = async () => {
+    setIsLoading(true);
     try {
       await firebaseGoogleSignIn();
+      setIsLoading(false);
       navigate('/home');
     } catch (err) {
       console.error(err);
+      setIsLoading(false);
     }
   };
 
@@ -162,29 +164,32 @@ const AuthLogin = ({ loginProp, ...others }) => {
           password: Yup.string().max(255).required('Password is required'),
         })}
         onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
+          setIsLoading(true);
           try {
             await firebaseEmailPasswordSignIn(
               values.email,
               values.password
             ).then(
-              () => navigate('/home'),
+              () => {
+                setIsLoading(false);
+                navigate('/home');
+              },
               (err) => {
+                setIsLoading(false);
                 setStatus({ success: false });
-                console.log(err.code);
+                console.log(err.message);
                 if (err.code === 'auth/wrong-password')
                   setErrors({ password: 'Invalid Password' });
                 else if (err.code === 'auth/user-not-found')
                   setErrors({ email: 'Invalid Email' });
                 else setErrors({ submit: 'Something went wrong' });
-
                 setSubmitting(false);
               }
             );
           } catch (err) {
+            setIsLoading(false);
             setStatus({ success: false });
-
             setErrors({ submit: 'Something went wrong' });
-
             setSubmitting(false);
           }
         }}
