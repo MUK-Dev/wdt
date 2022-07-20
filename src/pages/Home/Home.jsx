@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Grid, Container } from '@mui/material';
 
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 import AuthGuard from '../../utils/AuthGuard';
 import ListSection from './ListSection/ListSection';
@@ -30,39 +30,37 @@ const Home = () => {
   return (
     <AuthGuard>
       {isLoading && <Loader />}
-      <AnimatePresence>
-        <Container maxWidth='xl'>
-          <Grid
-            container
-            direction='row'
-            gap='2vh'
-            height='100vh'
-            maxHeight='100vh'
-            justifyContent='center'
-            alignItems='center'
-          >
-            <Grid item sm={5} xs={12}>
-              <ListSection />
-            </Grid>
-            <Grid item sm={4} xs={12}>
-              <Grid
-                container
-                direction='column'
-                gap='2vh'
-                component={motion.div}
-                variants={right}
-                initial='hidden'
-                animate='show'
-                exit='exit'
-                transition={{ duration: 1 }}
-              >
-                <UserInfo setIsLoading={setIsLoading} />
-                <Notifications />
-              </Grid>
+      <Container maxWidth='xl'>
+        <Grid
+          container
+          direction='row'
+          gap='2vh'
+          height='100vh'
+          maxHeight='100vh'
+          justifyContent='center'
+          alignItems='center'
+        >
+          <Grid item sm={5} xs={12}>
+            <ListSection key='ovnoern24n3(30220f0' />
+          </Grid>
+          <Grid item sm={4} xs={12}>
+            <Grid
+              container
+              direction='column'
+              gap='2vh'
+              component={motion.div}
+              variants={right}
+              initial='hidden'
+              animate='show'
+              exit='exit'
+              transition={{ duration: 1 }}
+            >
+              <UserInfo setIsLoading={setIsLoading} />
+              <Notifications />
             </Grid>
           </Grid>
-        </Container>
-      </AnimatePresence>
+        </Grid>
+      </Container>
     </AuthGuard>
   );
 };

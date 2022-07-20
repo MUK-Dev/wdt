@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { AddCircleOutline } from '@mui/icons-material';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const ListSection = () => {
   const theme = useTheme();
@@ -60,6 +60,7 @@ const ListSection = () => {
           }}
           color='success'
           fullWidth
+          onClick={() => navigate('/checklist')}
         >
           <AddCircleOutline htmlColor={theme.palette.success.dark} />
         </Button>

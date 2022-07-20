@@ -10,6 +10,7 @@ const UserInfo = ({ setIsLoading }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
+  const main = theme.palette.primary.main;
   return (
     <Paper
       sx={{
@@ -37,18 +38,16 @@ const UserInfo = ({ setIsLoading }) => {
             sx={{ width: 75, height: 75, background: 'none' }}
           />
           <Grid container direction='row' justifyContent='center'>
-            <Typography variant='h3' color={theme.palette.primary.main}>
+            <Typography variant='h3' color={main}>
               {user.name}
             </Typography>
-            {user.verified && (
-              <VerifiedOutlined htmlColor={theme.palette.primary.main} />
-            )}
+            {user.verified && <VerifiedOutlined htmlColor={main} />}
           </Grid>
-          <Typography variant='h4' color={theme.palette.primary.main}>
+          <Typography variant='h4' color={main}>
             {user.email}
           </Typography>
           {user.company && (
-            <Typography variant='h4' color={theme.palette.primary.main}>
+            <Typography variant='h4' color={main}>
               Associated with {user.company}
             </Typography>
           )}
@@ -57,7 +56,7 @@ const UserInfo = ({ setIsLoading }) => {
             color='success'
             sx={{ color: theme.palette.success.dark }}
           >
-            View Full Details
+            Edit Profile
           </Button>
         </Stack>
         <Button

@@ -7,6 +7,7 @@ import theme from './theme/theme';
 import Register from './pages/auth/Register/Register';
 import { FirebaseProvider as AuthProvider } from './contexts/FirebaseContext';
 import Home from './pages/Home/Home';
+import CheckListPage from './pages/CheckListPage/CheckListPage';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
             <Route path='/' element={<Login />} />
             <Route path='/register' element={<Register />} />
             <Route path='/home' element={<Home />} />
+            <Route path='/checklist' element={<CheckListPage />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>
