@@ -17,13 +17,15 @@ const AuthGuard = ({ children, path = '/' }) => {
       setIsAuthenticated(true);
       navigate(path, { replace: true });
     } else if (isLoggedIn) {
+      const currentPath = window.location.pathname;
+      if (currentPath === '/' || currentPath === '/register')
+        navigate('/home', { replace: true });
       setIsAuthenticated(true);
-      navigate('/home', { replace: true });
     } else {
       setIsAuthenticated(true);
       navigate('/', { replace: true });
     }
-  }, [isLoggedIn, navigate]);
+  }, [isLoggedIn, navigate, path]);
 
   return isAuthenticated ? (
     children
