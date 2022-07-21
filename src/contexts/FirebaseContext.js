@@ -4,7 +4,17 @@ import { createContext, useEffect, useReducer, useState } from 'react';
 // third-party
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
-import { doc, setDoc, getFirestore, getDoc } from 'firebase/firestore';
+import {
+  doc,
+  setDoc,
+  getFirestore,
+  getDoc,
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+} from 'firebase/firestore';
 
 // action - state management
 import { LOGIN, LOGOUT } from '../store/actions';
@@ -15,11 +25,9 @@ import Loader from '../components/ui/Loader';
 import { FIREBASE_API } from '../config';
 
 let app, db;
-// firebase initialize
-if (!firebase.apps.length) {
-  app = firebase.initializeApp(FIREBASE_API);
-  db = getFirestore(app);
-}
+
+app = firebase.initializeApp(FIREBASE_API);
+db = getFirestore(app);
 
 // const
 const initialState = {
@@ -103,6 +111,47 @@ export const FirebaseProvider = ({ children }) => {
     return user;
   };
 
+  const createNewChecklist = async (
+    title,
+    description,
+    checklist,
+    name,
+    avatar,
+    role
+  ) => {
+    const newList = {
+      title,
+      description,
+      createdBy: name,
+      checklist: JSON.stringify(checklist),
+      created: new Date(),
+    };
+    const newUser = {
+      name,
+      avatar,
+      role,
+    };
+    const listRef = await addDoc(collection(db, 'lists'), newList);
+    await addDoc(collection(db, 'lists', listRef.id, 'users'), newUser);
+    const listInfo = await getDoc(doc(db, 'lists', listRef.id));
+    const usersInfo = await getDocs(
+      query(collection(db, 'lists', listRef.id, 'users'))
+    );
+    const users = usersInfo.docs.map((u) => u.data());
+    return { listInfo: { ...listInfo.data(), id: listRef.id }, users };
+  };
+
+  const getUserLists = async (name) => {
+    const l = await getDocs(
+      query(collection(db, 'lists'), where('createdBy', '==', name))
+    );
+    const lists = [];
+    l.docs.map((list) => lists.push({ ...list.data(), id: list.id }));
+    return lists;
+  };
+
+  const getList = async (listId) => {};
+
   const firebaseGoogleSignIn = async () => {
     const provider = new firebase.auth.GoogleAuthProvider();
 
@@ -167,6 +216,8 @@ export const FirebaseProvider = ({ children }) => {
         logout,
         resetPassword,
         updateProfile,
+        createNewChecklist,
+        getUserLists,
       }}
     >
       {children}

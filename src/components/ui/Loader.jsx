@@ -4,7 +4,7 @@ import { styled } from '@mui/material/styles';
 
 // styles
 const LoaderWrapper = styled('div')({
-  position: 'fixed',
+  position: 'absolute',
   top: 0,
   left: 0,
   zIndex: 1301,

@@ -1,0 +1,17 @@
+{
+    title: String,
+    description: String,
+    checklists: [
+        {
+            task: String,
+            checked: Boolean,
+        }
+    ],
+    users: [
+        {
+            name: String,
+            avatar: String,
+            role: Number
+        }
+    ]
+}

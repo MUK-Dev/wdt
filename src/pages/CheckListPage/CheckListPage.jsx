@@ -1,159 +1,80 @@
-import React, { useState } from 'react';
-import {
-  Checkbox,
-  FormControlLabel,
-  Grid,
-  Paper,
-  Stack,
-  Typography,
-  TextField,
-  IconButton,
-  Button,
-} from '@mui/material';
-import { useTheme } from '@mui/material/styles';
-import { AddTaskRounded } from '@mui/icons-material';
+import React, { useState, useEffect } from 'react';
+import { Grid } from '@mui/material';
+import { useSearchParams } from 'react-router-dom';
 
 import AuthGuard from '../../utils/AuthGuard';
+import ListSection from './ListSection/ListSection';
+import SaveSection from './SaveSection/SaveSection';
+import UsersSection from './UsersSection/UsersSection';
+import Loader from '../../components/ui/Loader';
+import useAuth from '../../hooks/useAuth';
 
 const CheckListPage = () => {
   const [title, setTitle] = useState('Title');
   const [description, setDescription] = useState('Description');
-  const [newItem, setNewItem] = useState('');
-  const [list, setList] = useState([
-    {
-      description: 'first',
-      checked: false,
-    },
-    {
-      description: 'second',
-      checked: false,
-    },
-    {
-      description: 'third',
-      checked: true,
-    },
-  ]);
-  const theme = useTheme();
+  const [list, setList] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [usersList, setUsersList] = useState([]);
+  const { createNewChecklist, user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const addNewItem = () => {
-    if (newItem !== '') {
-      const newArray = [...list];
-      newArray.push({ checked: false, description: newItem });
-      setList(newArray);
-      setNewItem('');
-    }
-  };
+  const getData = () => {};
+
+  useEffect(() => {
+    const listNo = searchParams.get('listNo');
+    console.log(listNo);
+  }, [searchParams]);
 
   return (
     <AuthGuard>
+      {isLoading && <Loader />}
       <Grid
         container
         direction='row'
-        justifyContent='space-between'
-        sx={{ padding: '1vh' }}
+        justifyContent='center'
+        sx={{ padding: '1em' }}
         gap='1vh'
       >
         <Grid item sm={6} xs={12}>
-          <Grid container>
-            <Paper
-              sx={{
-                minHeight: '95vh',
-                padding: '1vh',
-                width: '100%',
-                display: 'flex',
-              }}
-            >
-              <Grid container direction='column' justifyContent='space-between'>
-                <Stack direction='column'>
-                  <Typography
-                    variant='h3'
-                    contentEditable
-                    sx={{ maxWidth: '100%' }}
-                    onInput={({ target }) => setTitle(target.textContent)}
-                    onBlur={({ target }) => setTitle(target.textContent)}
-                  >
-                    Title
-                  </Typography>
-                  <Typography
-                    variant='h4'
-                    contentEditable
-                    sx={{ margin: '2vh 0', maxWidth: '100%' }}
-                    onInput={(e) => setDescription(e.target.textContent)}
-                    onBlur={(e) => setDescription(e.target.textContent)}
-                  >
-                    Description
-                  </Typography>
-                  <Stack
-                    direction='column'
-                    sx={{ maxHeight: '75vh', overflowY: 'auto' }}
-                  >
-                    {list.map(({ description, checked }, index) => (
-                      <FormControlLabel
-                        key={index}
-                        control={<Checkbox color='success' checked={checked} />}
-                        sx={{ fontSize: '2rem' }}
-                        label={description}
-                        onChange={(e) => {
-                          const newList = [...list];
-                          newList[index].checked = e.target.checked;
-                          setList(newList);
-                        }}
-                      />
-                    ))}
-                  </Stack>
-                </Stack>
-
-                <Grid container direction='row' alignItems='center'>
-                  <Grid item xs={11}>
-                    <TextField
-                      label='New Checklist'
-                      variant='outlined'
-                      value={newItem}
-                      onChange={({ target }) => setNewItem(target.value)}
-                      fullWidth
-                    />
-                  </Grid>
-                  <Grid item xs={1}>
-                    <IconButton
-                      color='success'
-                      size='large'
-                      onClick={addNewItem}
-                    >
-                      <AddTaskRounded />
-                    </IconButton>
-                  </Grid>
-                </Grid>
-              </Grid>
-            </Paper>
-          </Grid>
+          <ListSection
+            title={title}
+            setTitle={setTitle}
+            description={description}
+            setDescription={setDescription}
+            list={list}
+            setList={setList}
+          />
         </Grid>
-        <Grid item sm={3} xs={12}>
-          <Paper
-            sx={{
-              minHeight: '20vh',
-              padding: '1vh',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-            }}
-          >
-            <Grid container direction='column' alignItems='center'>
-              <Button
-                variant='contained'
-                color='success'
-                sx={{ color: theme.palette.primary.light }}
-              >
-                Save
-              </Button>
-              <Typography
-                variant='h4'
-                color={theme.palette.primary.main}
-                marginTop='2vh'
-              >
-                Leaving without saving will discard all unsaved changes
-              </Typography>
-            </Grid>
-          </Paper>
+        <Grid item sm={2} xs={12}>
+          <Grid container direction='column' gap='1vh'>
+            <SaveSection
+              onClick={async () => {
+                setIsLoading(true);
+                try {
+                  const { listInfo, users } = await createNewChecklist(
+                    title,
+                    description,
+                    list,
+                    user.name,
+                    user.avatar,
+                    0
+                  );
+                  console.log('CheckListPage', listInfo, users);
+                  setUsersList(users);
+                  setTitle(listInfo.title);
+                  setDescription(listInfo.description);
+                  setList(JSON.parse(listInfo.checklist));
+                  setSearchParams({ listNo: listInfo.id }, { replace: true });
+                  setIsLoading(false);
+                } catch (e) {
+                  console.log(e);
+                  setIsLoading(false);
+                }
+              }}
+              disableButton={isLoading}
+            />
+            <UsersSection users={usersList} />
+          </Grid>
         </Grid>
       </Grid>
     </AuthGuard>

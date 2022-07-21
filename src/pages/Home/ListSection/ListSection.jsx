@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Paper,
@@ -12,11 +12,17 @@ import {
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { AddCircleOutline } from '@mui/icons-material';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+
+import useAuth from '../../../hooks/useAuth';
+import Loader from '../../../components/ui/Loader';
 
 const ListSection = () => {
   const theme = useTheme();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const [lists, setLists] = useState([]);
+  const { getUserLists, user } = useAuth();
   const left = {
     hidden: {
       x: -40,
@@ -31,12 +37,28 @@ const ListSection = () => {
       opacity: 0,
     },
   };
+  const getData = async () => {
+    setIsLoading(true);
+    try {
+      const gotLists = await getUserLists(user.name);
+      setLists(gotLists);
+      setIsLoading(false);
+    } catch (e) {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getData();
+  }, []);
+
   return (
     <Paper
       sx={{
         minHeight: '80vh',
         maxHeight: '80vh',
         overflow: 'auto',
+        position: 'relative',
       }}
       component={motion.div}
       variants={left}
@@ -45,6 +67,7 @@ const ListSection = () => {
       exit='exit'
       transition={{ duration: 1 }}
     >
+      {isLoading && <Loader />}
       <Stack
         alignItems='center'
         justifyContent='center'
@@ -74,14 +97,19 @@ const ListSection = () => {
         Your Lists
       </Typography>
       <List>
-        <ListItem disablePadding>
-          <ListItemButton>
-            <ListItemText
-              primary='First Title'
-              secondary='sapiente libero maxime ducimus culpa aliquam est sint modi exercitationem, incidunt voluptas dolore eum. In, temporibus corporis. '
-            />
-          </ListItemButton>
-        </ListItem>
+        {lists?.map((l) => (
+          <ListItem
+            disablePadding
+            key={l.id}
+            onClick={() =>
+              navigate({ pathname: '/checklist', search: `?listNo=${l.id}` })
+            }
+          >
+            <ListItemButton>
+              <ListItemText primary={l.title} secondary={l.description} />
+            </ListItemButton>
+          </ListItem>
+        ))}
       </List>
     </Paper>
   );

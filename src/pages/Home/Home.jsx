@@ -41,7 +41,7 @@ const Home = () => {
           alignItems='center'
         >
           <Grid item sm={5} xs={12}>
-            <ListSection key='ovnoern24n3(30220f0' />
+            <ListSection />
           </Grid>
           <Grid item sm={4} xs={12}>
             <Grid
