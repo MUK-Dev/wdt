@@ -41,7 +41,7 @@ const ListSection = () => {
     setIsLoading(true);
     try {
       const gotLists = await getUserLists(user.name);
-      setLists(gotLists);
+      setLists(gotLists.reverse());
       setIsLoading(false);
     } catch (e) {
       setIsLoading(false);

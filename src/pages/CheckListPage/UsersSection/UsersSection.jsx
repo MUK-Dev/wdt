@@ -20,8 +20,8 @@ const UsersSection = ({ users }) => {
     <Grid item>
       <Paper
         sx={{
-          minHeight: '74vh',
-          maxHeight: '74vh',
+          minHeight: '53vh',
+          maxHeight: '53vh',
           overflow: 'auto',
           padding: '1em',
         }}
@@ -38,7 +38,12 @@ const UsersSection = ({ users }) => {
             users.map((u, i) => (
               <ListItem disablePadding key={i}>
                 <ListItemAvatar>
-                  <Avatar alt={u.name} src={u.avatar} />
+                  <Avatar
+                    sx={{ background: 'transparent' }}
+                    alt={u.name}
+                    src={u.avatar}
+                    referrerPolicy='no-referrer'
+                  />
                 </ListItemAvatar>
                 <ListItemText
                   primary={u.name}

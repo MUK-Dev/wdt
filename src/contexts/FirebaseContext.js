@@ -13,6 +13,7 @@ import {
   addDoc,
   getDocs,
   query,
+  updateDoc,
   where,
 } from 'firebase/firestore';
 
@@ -138,8 +139,15 @@ export const FirebaseProvider = ({ children }) => {
       query(collection(db, 'lists', listRef.id, 'users'))
     );
     const users = usersInfo.docs.map((u) => u.data());
-    return { listInfo: { ...listInfo.data(), id: listRef.id }, users };
+    return { listInfo: { ...listInfo.data(), id: listInfo.id }, users };
   };
+
+  const updateChecklist = (id, title, description, checklist) =>
+    updateDoc(doc(db, 'lists', id), {
+      title,
+      description,
+      checklist: JSON.stringify(checklist),
+    });
 
   const getUserLists = async (name) => {
     const l = await getDocs(
@@ -150,7 +158,14 @@ export const FirebaseProvider = ({ children }) => {
     return lists;
   };
 
-  const getList = async (listId) => {};
+  const getList = async (listId) => {
+    const listInfo = await getDoc(doc(db, 'lists', listId));
+    const usersInfo = await getDocs(
+      query(collection(db, 'lists', listInfo.id, 'users'))
+    );
+    const users = usersInfo.docs.map((u) => u.data());
+    return { listInfo: { ...listInfo.data(), id: listInfo.id }, users };
+  };
 
   const firebaseGoogleSignIn = async () => {
     const provider = new firebase.auth.GoogleAuthProvider();
@@ -218,6 +233,8 @@ export const FirebaseProvider = ({ children }) => {
         updateProfile,
         createNewChecklist,
         getUserLists,
+        getList,
+        updateChecklist,
       }}
     >
       {children}

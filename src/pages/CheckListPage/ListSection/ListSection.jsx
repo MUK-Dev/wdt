@@ -20,6 +20,7 @@ const ListSection = ({
   setDescription,
   list,
   setList,
+  isLoading,
 }) => {
   const [newItem, setNewItem] = useState('');
 
@@ -83,6 +84,7 @@ const ListSection = ({
                 value={newItem}
                 onChange={({ target }) => setNewItem(target.value)}
                 fullWidth
+                disabled={isLoading}
               />
             </Grid>
             <Grid item xs={1}>

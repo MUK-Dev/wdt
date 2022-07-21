@@ -8,6 +8,7 @@ import SaveSection from './SaveSection/SaveSection';
 import UsersSection from './UsersSection/UsersSection';
 import Loader from '../../components/ui/Loader';
 import useAuth from '../../hooks/useAuth';
+import ShareSection from './ShareSection/ShareSection';
 
 const CheckListPage = () => {
   const [title, setTitle] = useState('Title');
@@ -15,15 +16,66 @@ const CheckListPage = () => {
   const [list, setList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [usersList, setUsersList] = useState([]);
-  const { createNewChecklist, user } = useAuth();
+  const { createNewChecklist, user, getList, updateChecklist } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
+  const listNo = searchParams.get('listNo');
 
-  const getData = () => {};
+  const getData = async () => {
+    if (listNo) {
+      setIsLoading(true);
+      try {
+        const { listInfo, users } = await getList(listNo);
+        setUsersList(users);
+        setTitle(listInfo.title);
+        setDescription(listInfo.description);
+        setList(JSON.parse(listInfo.checklist));
+        setSearchParams({ listNo: listInfo.id }, { replace: true });
+        setIsLoading(false);
+      } catch (e) {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  const createNewList = async () => {
+    setIsLoading(true);
+    try {
+      const { listInfo, users } = await createNewChecklist(
+        title,
+        description,
+        list,
+        user.name,
+        user.avatar,
+        0
+      );
+      setUsersList(users);
+      setTitle(listInfo.title);
+      setDescription(listInfo.description);
+      setList(JSON.parse(listInfo.checklist));
+      setSearchParams({ listNo: listInfo.id }, { replace: true });
+      setIsLoading(false);
+    } catch (e) {
+      setIsLoading(false);
+    }
+  };
+
+  const updateList = async () => {
+    setIsLoading(true);
+    try {
+      await updateChecklist(listNo, title, description, list);
+      setIsLoading(false);
+    } catch (e) {
+      console.log(e);
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const listNo = searchParams.get('listNo');
-    console.log(listNo);
-  }, [searchParams]);
+    getData();
+    if (usersList.filter((u) => u.name === user.name)) {
+      console.log('User Not in List');
+    }
+  }, []);
 
   return (
     <AuthGuard>
@@ -43,36 +95,16 @@ const CheckListPage = () => {
             setDescription={setDescription}
             list={list}
             setList={setList}
+            isLoading={isLoading}
           />
         </Grid>
         <Grid item sm={2} xs={12}>
           <Grid container direction='column' gap='1vh'>
             <SaveSection
-              onClick={async () => {
-                setIsLoading(true);
-                try {
-                  const { listInfo, users } = await createNewChecklist(
-                    title,
-                    description,
-                    list,
-                    user.name,
-                    user.avatar,
-                    0
-                  );
-                  console.log('CheckListPage', listInfo, users);
-                  setUsersList(users);
-                  setTitle(listInfo.title);
-                  setDescription(listInfo.description);
-                  setList(JSON.parse(listInfo.checklist));
-                  setSearchParams({ listNo: listInfo.id }, { replace: true });
-                  setIsLoading(false);
-                } catch (e) {
-                  console.log(e);
-                  setIsLoading(false);
-                }
-              }}
+              onClick={listNo ? updateList : createNewList}
               disableButton={isLoading}
             />
+            <ShareSection />
             <UsersSection users={usersList} />
           </Grid>
         </Grid>
