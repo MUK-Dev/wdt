@@ -14,9 +14,10 @@ const UserInfo = ({ setIsLoading }) => {
   return (
     <Paper
       sx={{
-        minHeight: '39vh',
+        minHeight: '27vh',
         padding: '1vh 0 0 0',
         display: 'flex',
+        position: 'relative',
       }}
     >
       <Stack
@@ -35,9 +36,20 @@ const UserInfo = ({ setIsLoading }) => {
             src={user.avatar}
             alt={user.name}
             referrerPolicy='no-referrer'
-            sx={{ width: 75, height: 75, background: 'none' }}
+            sx={{
+              width: 75,
+              height: 75,
+              background: 'none',
+              position: 'absolute',
+              top: -35,
+            }}
           />
-          <Grid container direction='row' justifyContent='center'>
+          <Grid
+            container
+            direction='row'
+            justifyContent='center'
+            padding='2em 0 0 0'
+          >
             <Typography variant='h3' color={main}>
               {user.name}
             </Typography>

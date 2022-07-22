@@ -8,6 +8,7 @@ import ListSection from './ListSection/ListSection';
 import UserInfo from './UserInfo/UserInfo';
 import Notifications from './Notifications/Notifications';
 import Loader from '../../components/ui/Loader';
+import AccessList from './AccessList/AccessList';
 
 const Home = () => {
   const right = {
@@ -56,6 +57,7 @@ const Home = () => {
               transition={{ duration: 1 }}
             >
               <UserInfo setIsLoading={setIsLoading} />
+              <AccessList />
               <Notifications />
             </Grid>
           </Grid>

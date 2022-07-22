@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Grid } from '@mui/material';
+import { Button, Grid } from '@mui/material';
 import { useSearchParams } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 
 import AuthGuard from '../../utils/AuthGuard';
 import ListSection from './ListSection/ListSection';
@@ -9,6 +10,7 @@ import UsersSection from './UsersSection/UsersSection';
 import Loader from '../../components/ui/Loader';
 import useAuth from '../../hooks/useAuth';
 import ShareSection from './ShareSection/ShareSection';
+import Modal from '../../components/ui/Modal';
 
 const CheckListPage = () => {
   const [title, setTitle] = useState('Title');
@@ -16,8 +18,11 @@ const CheckListPage = () => {
   const [list, setList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [usersList, setUsersList] = useState([]);
+  const [showModal, setShowModal] = useState(false);
   const { createNewChecklist, user, getList, updateChecklist } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [url, setUrl] = useState(`${window.location.href}`);
+  const [canEdit, setCanEdit] = useState(false);
   const listNo = searchParams.get('listNo');
 
   const getData = async () => {
@@ -28,9 +33,15 @@ const CheckListPage = () => {
         setUsersList(users);
         setTitle(listInfo.title);
         setDescription(listInfo.description);
-        setList(JSON.parse(listInfo.checklist));
+        setList(listInfo.checklist);
         setSearchParams({ listNo: listInfo.id }, { replace: true });
         setIsLoading(false);
+        setCanEdit(
+          users.filter((u) => {
+            if (u.role === 0) return u.uid === user.id;
+          }).length > 0
+        );
+        setShowModal(!(users.filter((u) => u.name === user.name).length > 0));
       } catch (e) {
         setIsLoading(false);
       }
@@ -44,6 +55,7 @@ const CheckListPage = () => {
         title,
         description,
         list,
+        user.id,
         user.name,
         user.avatar,
         0
@@ -51,8 +63,9 @@ const CheckListPage = () => {
       setUsersList(users);
       setTitle(listInfo.title);
       setDescription(listInfo.description);
-      setList(JSON.parse(listInfo.checklist));
+      setList(listInfo.checklist);
       setSearchParams({ listNo: listInfo.id }, { replace: true });
+      setUrl(`${url}?listNo=${listInfo.id}`);
       setIsLoading(false);
     } catch (e) {
       setIsLoading(false);
@@ -65,21 +78,27 @@ const CheckListPage = () => {
       await updateChecklist(listNo, title, description, list);
       setIsLoading(false);
     } catch (e) {
-      console.log(e);
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
     getData();
-    if (usersList.filter((u) => u.name === user.name)) {
-      console.log('User Not in List');
-    }
   }, []);
 
   return (
     <AuthGuard>
       {isLoading && <Loader />}
+      <AnimatePresence>
+        {showModal && (
+          <Modal
+            setShowModal={setShowModal}
+            usersList={usersList}
+            setUsersList={setUsersList}
+            listNo={listNo}
+          />
+        )}
+      </AnimatePresence>
       <Grid
         container
         direction='row'
@@ -104,7 +123,7 @@ const CheckListPage = () => {
               onClick={listNo ? updateList : createNewList}
               disableButton={isLoading}
             />
-            <ShareSection />
+            <ShareSection url={url} />
             <UsersSection users={usersList} />
           </Grid>
         </Grid>

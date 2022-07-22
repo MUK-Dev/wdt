@@ -1,0 +1,8 @@
+{
+    id: String,
+    avatar: String,
+    company: String,
+    created: Date,
+    name: String,
+    verified: Boolean,
+}

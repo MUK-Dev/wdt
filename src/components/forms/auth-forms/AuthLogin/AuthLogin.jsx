@@ -177,7 +177,6 @@ const AuthLogin = ({ loginProp, setIsLoading, ...others }) => {
               (err) => {
                 setIsLoading(false);
                 setStatus({ success: false });
-                console.log(err.message);
                 if (err.code === 'auth/wrong-password')
                   setErrors({ password: 'Invalid Password' });
                 else if (err.code === 'auth/user-not-found')

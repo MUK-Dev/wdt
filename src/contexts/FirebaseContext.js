@@ -15,6 +15,7 @@ import {
   query,
   updateDoc,
   where,
+  collectionGroup,
 } from 'firebase/firestore';
 
 // action - state management
@@ -116,55 +117,77 @@ export const FirebaseProvider = ({ children }) => {
     title,
     description,
     checklist,
+    uid,
     name,
     avatar,
     role
   ) => {
-    const newList = {
-      title,
-      description,
-      createdBy: name,
-      checklist: JSON.stringify(checklist),
-      created: new Date(),
-    };
     const newUser = {
+      uid,
       name,
       avatar,
       role,
     };
+    const newList = {
+      title,
+      description,
+      createdBy: uid,
+      checklist: checklist,
+      users: [newUser],
+      created: new Date(),
+    };
     const listRef = await addDoc(collection(db, 'lists'), newList);
-    await addDoc(collection(db, 'lists', listRef.id, 'users'), newUser);
     const listInfo = await getDoc(doc(db, 'lists', listRef.id));
-    const usersInfo = await getDocs(
-      query(collection(db, 'lists', listRef.id, 'users'))
-    );
-    const users = usersInfo.docs.map((u) => u.data());
-    return { listInfo: { ...listInfo.data(), id: listInfo.id }, users };
+    return {
+      listInfo: { ...listInfo.data(), id: listInfo.id },
+      users: listInfo.data().users,
+    };
   };
 
   const updateChecklist = (id, title, description, checklist) =>
     updateDoc(doc(db, 'lists', id), {
       title,
       description,
-      checklist: JSON.stringify(checklist),
+      checklist: checklist,
     });
 
-  const getUserLists = async (name) => {
-    const l = await getDocs(
-      query(collection(db, 'lists'), where('createdBy', '==', name))
-    );
+  const getUserLists = async (id) => {
+    const l = await getDocs(query(collection(db, 'lists')));
+
     const lists = [];
-    l.docs.map((list) => lists.push({ ...list.data(), id: list.id }));
+    l.docs.map((list) => {
+      if (list.data().users?.filter((u) => u.uid === id).length > 0)
+        lists.push({ ...list.data(), id: list.id });
+    });
     return lists;
   };
 
   const getList = async (listId) => {
     const listInfo = await getDoc(doc(db, 'lists', listId));
-    const usersInfo = await getDocs(
-      query(collection(db, 'lists', listInfo.id, 'users'))
-    );
-    const users = usersInfo.docs.map((u) => u.data());
-    return { listInfo: { ...listInfo.data(), id: listInfo.id }, users };
+
+    return {
+      listInfo: { ...listInfo.data(), id: listInfo.id },
+      users: listInfo.data().users,
+    };
+  };
+
+  const requestAccessToList = async (
+    listId,
+    prevUsers,
+    uid,
+    name,
+    avatar,
+    role
+  ) => {
+    const user = {
+      uid,
+      name,
+      avatar,
+      role,
+    };
+    await updateDoc(doc(db, 'lists', listId), {
+      users: [...prevUsers, user],
+    });
   };
 
   const firebaseGoogleSignIn = async () => {
@@ -235,6 +258,7 @@ export const FirebaseProvider = ({ children }) => {
         getUserLists,
         getList,
         updateChecklist,
+        requestAccessToList,
       }}
     >
       {children}

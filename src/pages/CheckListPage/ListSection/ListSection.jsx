@@ -1,17 +1,10 @@
 import React, { useState } from 'react';
-import {
-  Checkbox,
-  FormControlLabel,
-  Grid,
-  Paper,
-  Stack,
-  TextField,
-  IconButton,
-  Divider,
-} from '@mui/material';
+import { Grid, Paper, Stack, TextField, IconButton } from '@mui/material';
 import { AddTaskRounded } from '@mui/icons-material';
 
 import EditableContent from '../../../components/ui/EditableContent';
+import CustomCheckbox from '../../../components/ui/CustomCheckbox';
+import { Timestamp } from 'firebase/firestore';
 
 const ListSection = ({
   title,
@@ -27,7 +20,11 @@ const ListSection = ({
   const addNewItem = () => {
     if (newItem !== '') {
       const newArray = [...list];
-      newArray.push({ checked: false, task: newItem });
+      newArray.push({
+        checked: false,
+        task: newItem,
+        created: Timestamp.fromDate(new Date()),
+      });
       setList(newArray);
       setNewItem('');
     }
@@ -55,22 +52,26 @@ const ListSection = ({
 
             <Stack
               direction='column'
-              sx={{ maxHeight: '75vh', overflowY: 'auto' }}
+              sx={{
+                maxHeight: '75vh',
+                overflowY: 'auto',
+                overflowX: 'hidden',
+                width: '100%',
+              }}
             >
-              {list.map(({ task, checked }, index) => (
-                <div key={index}>
-                  <FormControlLabel
-                    control={<Checkbox color='success' checked={checked} />}
-                    sx={{ fontSize: '2rem' }}
-                    label={task}
-                    onChange={(e) => {
-                      const newList = [...list];
-                      newList[index].checked = e.target.checked;
-                      setList(newList);
-                    }}
-                  />
-                  <Divider variant='middle' />
-                </div>
+              {list.map(({ task, checked, created }, index) => (
+                <CustomCheckbox
+                  key={index}
+                  checked={checked}
+                  task={task}
+                  created={created}
+                  index={index}
+                  onChange={(e) => {
+                    const newList = [...list];
+                    newList[index].checked = e.target.checked;
+                    setList(newList);
+                  }}
+                />
               ))}
             </Stack>
           </Stack>

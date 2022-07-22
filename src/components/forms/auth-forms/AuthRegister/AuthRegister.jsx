@@ -187,7 +187,6 @@ const AuthRegister = ({ setIsLoading, ...others }) => {
               },
               (err) => {
                 setIsLoading(false);
-                console.log(err.message);
                 setStatus({ success: false });
                 if (err.code === 'auth/email-already-in-use')
                   setErrors({ email: 'Email Address already in use' });

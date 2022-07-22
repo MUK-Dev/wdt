@@ -2,7 +2,7 @@ import React from 'react';
 import { Paper, Stack, Typography, TextField } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
-const ShareSection = () => {
+const ShareSection = ({ url }) => {
   const theme = useTheme();
 
   return (
@@ -19,7 +19,7 @@ const ShareSection = () => {
           label='Link'
           multiline
           rows={4}
-          defaultValue={window.location.href}
+          value={url}
           onFocus={(e) => e.target.select()}
           margin='dense'
           inputProps={{ readOnly: true }}

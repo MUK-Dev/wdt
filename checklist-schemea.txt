@@ -1,14 +1,19 @@
 {
     title: String,
     description: String,
+    created: Date,
+    createdBy: String,
+
     checklists: [
         {
+            created: Date,
             task: String,
             checked: Boolean,
         }
     ],
     users: [
         {
+            uid: String,
             name: String,
             avatar: String,
             role: Number
