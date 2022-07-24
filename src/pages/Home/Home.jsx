@@ -35,7 +35,7 @@ const Home = () => {
         <Grid
           container
           direction='row'
-          gap='2vh'
+          gap='1em'
           height='100vh'
           maxHeight='100vh'
           justifyContent='center'
@@ -48,17 +48,25 @@ const Home = () => {
             <Grid
               container
               direction='column'
-              gap='2vh'
               component={motion.div}
               variants={right}
+              gap='1em'
               initial='hidden'
               animate='show'
               exit='exit'
               transition={{ duration: 1 }}
+              height='80vh'
+              justifyContent='space-between'
             >
-              <UserInfo setIsLoading={setIsLoading} />
-              <AccessList />
-              <Notifications />
+              <Grid item xs={3}>
+                <UserInfo setIsLoading={setIsLoading} />
+              </Grid>
+              <Grid item xs={1}>
+                <AccessList />
+              </Grid>
+              <Grid item xs={12} lg={5} xl={7}>
+                <Notifications />
+              </Grid>
             </Grid>
           </Grid>
         </Grid>

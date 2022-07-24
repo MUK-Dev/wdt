@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Grid, Paper, Stack, TextField, IconButton } from '@mui/material';
-import { AddTaskRounded } from '@mui/icons-material';
+import { AddTaskRounded, ArrowBack } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import { useTheme } from '@mui/material/styles';
 
 import EditableContent from '../../../components/ui/EditableContent';
 import CustomCheckbox from '../../../components/ui/CustomCheckbox';
@@ -14,11 +16,15 @@ const ListSection = ({
   list,
   setList,
   isLoading,
+  canEdit,
+  setShowSnackbar,
 }) => {
   const [newItem, setNewItem] = useState('');
+  const navigate = useNavigate();
+  const theme = useTheme();
 
   const addNewItem = () => {
-    if (newItem !== '') {
+    if (newItem !== '' && canEdit) {
       const newArray = [...list];
       newArray.push({
         checked: false,
@@ -27,6 +33,8 @@ const ListSection = ({
       });
       setList(newArray);
       setNewItem('');
+    } else {
+      setShowSnackbar(true);
     }
   };
   return (
@@ -34,18 +42,40 @@ const ListSection = ({
       <Paper
         sx={{
           minHeight: '95vh',
-          padding: '1em',
+          padding: '1.5em 1em 1em 1em',
           width: '100%',
           display: 'flex',
           wordWrap: 'break-word',
+          position: 'relative',
         }}
       >
+        <IconButton
+          sx={{
+            position: 'absolute',
+            top: -12,
+            left: -12,
+            backgroundColor: theme.palette.success.main,
+            '&:hover': {
+              backgroundColor: theme.palette.success.main,
+            },
+          }}
+          edge='end'
+          onClick={() => navigate('/home', { replace: true })}
+        >
+          <ArrowBack htmlColor={theme.palette.primary.light} />
+        </IconButton>
         <Grid container direction='column' justifyContent='space-between'>
           <Stack direction='column'>
-            <EditableContent text={title} setText={setTitle} label='Title' />
+            <EditableContent
+              text={title}
+              setText={setTitle}
+              canEdit={canEdit}
+              label='Title'
+            />
             <EditableContent
               text={description}
               setText={setDescription}
+              canEdit={canEdit}
               variant='h4'
               label='Description'
             />
@@ -67,9 +97,13 @@ const ListSection = ({
                   created={created}
                   index={index}
                   onChange={(e) => {
-                    const newList = [...list];
-                    newList[index].checked = e.target.checked;
-                    setList(newList);
+                    if (canEdit) {
+                      const newList = [...list];
+                      newList[index].checked = e.target.checked;
+                      setList(newList);
+                    } else {
+                      setShowSnackbar(true);
+                    }
                   }}
                 />
               ))}
@@ -85,11 +119,16 @@ const ListSection = ({
                 value={newItem}
                 onChange={({ target }) => setNewItem(target.value)}
                 fullWidth
-                disabled={isLoading}
+                disabled={isLoading || !canEdit}
               />
             </Grid>
             <Grid item xs={1}>
-              <IconButton color='success' size='large' onClick={addNewItem}>
+              <IconButton
+                color='success'
+                size='large'
+                onClick={addNewItem}
+                disabled={isLoading || !canEdit}
+              >
                 <AddTaskRounded />
               </IconButton>
             </Grid>

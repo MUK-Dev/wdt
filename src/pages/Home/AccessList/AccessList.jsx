@@ -20,7 +20,11 @@ const AccessList = () => {
     return url.protocol === 'http:' || url.protocol === 'https:';
   };
   return (
-    <Paper sx={{ minHeight: '10vh', padding: '1vh' }}>
+    <Paper
+      sx={{
+        padding: '1vh',
+      }}
+    >
       <Typography
         variant='body1'
         gutterBottom

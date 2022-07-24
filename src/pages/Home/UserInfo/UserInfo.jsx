@@ -14,8 +14,7 @@ const UserInfo = ({ setIsLoading }) => {
   return (
     <Paper
       sx={{
-        minHeight: '27vh',
-        padding: '1vh 0 0 0',
+        padding: '1em 0 0 0',
         display: 'flex',
         position: 'relative',
       }}
@@ -41,15 +40,10 @@ const UserInfo = ({ setIsLoading }) => {
               height: 75,
               background: 'none',
               position: 'absolute',
-              top: -35,
+              top: -55,
             }}
           />
-          <Grid
-            container
-            direction='row'
-            justifyContent='center'
-            padding='2em 0 0 0'
-          >
+          <Grid container direction='row' justifyContent='center'>
             <Typography variant='h3' color={main}>
               {user.name}
             </Typography>

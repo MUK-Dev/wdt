@@ -151,6 +151,14 @@ export const FirebaseProvider = ({ children }) => {
       checklist: checklist,
     });
 
+  const promoteUser = async (listId, users, index, toRole) => {
+    const newList = [...users];
+    newList[index].role = toRole;
+    await updateDoc(doc(db, 'lists', listId), {
+      users: newList,
+    });
+  };
+
   const getUserLists = async (id) => {
     const l = await getDocs(query(collection(db, 'lists')));
 
@@ -259,6 +267,7 @@ export const FirebaseProvider = ({ children }) => {
         getList,
         updateChecklist,
         requestAccessToList,
+        promoteUser,
       }}
     >
       {children}

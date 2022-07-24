@@ -3,7 +3,12 @@ import { Paper, Typography } from '@mui/material';
 
 const Notifications = () => {
   return (
-    <Paper sx={{ minHeight: '39vh', padding: '1vh' }}>
+    <Paper
+      sx={{
+        minHeight: '100%',
+        padding: '1vh',
+      }}
+    >
       <Typography>Notifications</Typography>
     </Paper>
   );

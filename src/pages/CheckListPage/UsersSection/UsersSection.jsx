@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Grid,
   Paper,
@@ -6,16 +7,26 @@ import {
   List,
   ListItem,
   Avatar,
-  ListItemAvatar,
   ListItemText,
+  Button,
+  IconButton,
+  Stack,
+  Modal,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import { GppMaybe } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 
 import { getRole } from '../../../utils/get-role';
+import useAuth from '../../../hooks/useAuth';
 
-const UsersSection = ({ users }) => {
+const UsersSection = ({ users, isManager, setUsers, setIsLoading }) => {
   const theme = useTheme();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [showModal, setShowModal] = useState(false);
+  const listNo = searchParams.get('listNo');
+  const { promoteUser } = useAuth();
+
   const usersAnimation = {
     initial: {
       opacity: 0,
@@ -24,12 +35,28 @@ const UsersSection = ({ users }) => {
       opacity: 1,
     },
   };
+
+  const promote = async (index, toRole) => {
+    setIsLoading(true);
+    try {
+      await promoteUser(listNo, users, index, toRole);
+      const newList = [...users];
+      newList[index].role = toRole;
+      setUsers(newList);
+      setIsLoading(false);
+      setShowModal(false);
+    } catch (e) {
+      setIsLoading(false);
+      setShowModal(false);
+    }
+  };
+
   return (
     <Grid item>
       <Paper
         sx={{
-          minHeight: '53vh',
-          maxHeight: '53vh',
+          minHeight: '55vh',
+          maxHeight: '55vh',
           overflow: 'auto',
           padding: '1em',
         }}
@@ -52,27 +79,97 @@ const UsersSection = ({ users }) => {
                 key={u.uid}
               >
                 <ListItem disablePadding>
-                  <ListItemAvatar>
-                    <Avatar
-                      sx={{ background: 'transparent' }}
-                      alt={u.name}
-                      src={u.avatar}
-                      referrerPolicy='no-referrer'
-                    />
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary={u.name}
-                    secondary={
-                      <Typography
-                        sx={{ display: 'inline' }}
-                        component='span'
-                        variant='body2'
-                        color='text.primary'
+                  <Grid
+                    container
+                    direction='row'
+                    justifyContent='space-between'
+                    alignItems='center'
+                  >
+                    <Grid item xs={u.role === 1 ? 10 : 12}>
+                      <Stack
+                        direction='row'
+                        alignItems='center'
+                        justifyContent='space-between'
                       >
-                        {getRole(u.role)}
-                      </Typography>
-                    }
-                  />
+                        <Avatar
+                          sx={{
+                            background: 'transparent',
+                            width: 34,
+                            height: 34,
+                            marginRight: '0.5em',
+                          }}
+                          alt={u.name}
+                          src={u.avatar}
+                          referrerPolicy='no-referrer'
+                        />
+                        <ListItemText
+                          primary={u.name}
+                          primaryTypographyProps={{
+                            align: 'left',
+                          }}
+                          secondaryTypographyProps={{
+                            align: 'left',
+                          }}
+                          secondary={getRole(u.role)}
+                        />
+                      </Stack>
+                    </Grid>
+                    {u.role === 1 && isManager && (
+                      <Grid item xs={2}>
+                        <Stack direction='column'>
+                          <IconButton
+                            onClick={() => setShowModal(true)}
+                            sx={{
+                              '&:hover': {
+                                backgroundColor: 'transparent',
+                              },
+                            }}
+                          >
+                            <GppMaybe htmlColor={theme.palette.warning.main} />
+                          </IconButton>
+                          <Modal
+                            open={showModal}
+                            onClose={() => setShowModal(false)}
+                            sx={{
+                              display: 'flex',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                            }}
+                          >
+                            <Paper sx={{ padding: '1em' }}>
+                              <Stack direction='column' alignItems='center'>
+                                <Avatar
+                                  sx={{
+                                    background: 'transparent',
+                                    width: 50,
+                                    height: 50,
+                                  }}
+                                  alt={u.name}
+                                  src={u.avatar}
+                                  referrerPolicy='no-referrer'
+                                />
+                                <Typography variant='h3'>{u.name}</Typography>
+                                <Typography variant='h4'>
+                                  {getRole(u.role)}
+                                </Typography>
+                                <Stack
+                                  direction='row'
+                                  justifyContent='space-between'
+                                >
+                                  <Button onClick={() => promote(i, 2)}>
+                                    Make User
+                                  </Button>
+                                  <Button onClick={() => promote(i, 0)}>
+                                    Make Manager
+                                  </Button>
+                                </Stack>
+                              </Stack>
+                            </Paper>
+                          </Modal>
+                        </Stack>
+                      </Grid>
+                    )}
+                  </Grid>
                 </ListItem>
               </motion.div>
             ))}

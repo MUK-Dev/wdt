@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Grid } from '@mui/material';
+import React, { useState, useEffect, useRef } from 'react';
+import { IconButton, Grid, Snackbar } from '@mui/material';
 import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
+import { Close } from '@mui/icons-material';
 
 import AuthGuard from '../../utils/AuthGuard';
 import ListSection from './ListSection/ListSection';
@@ -23,7 +24,34 @@ const CheckListPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [url, setUrl] = useState(`${window.location.href}`);
   const [canEdit, setCanEdit] = useState(false);
+  const [isManager, setIsManager] = useState(false);
   const listNo = searchParams.get('listNo');
+  const [showSnackbar, setShowSnackbar] = useState(false);
+  const [changeDone, setChangeDone] = useState(false);
+  const firstUpdate = useRef(true);
+  const secondUpdate = useRef(true);
+  const thirdUpdate = useRef(true);
+
+  useEffect(() => {
+    getData();
+  }, []);
+
+  useEffect(() => {
+    //Enables save button when any value changes
+    if (firstUpdate.current) {
+      firstUpdate.current = false;
+      return;
+    }
+    if (secondUpdate.current) {
+      secondUpdate.current = false;
+      return;
+    }
+    if (thirdUpdate.current) {
+      thirdUpdate.current = false;
+      return;
+    }
+    setChangeDone(true);
+  }, [title, description, list]);
 
   const getData = async () => {
     if (listNo) {
@@ -37,6 +65,11 @@ const CheckListPage = () => {
         setSearchParams({ listNo: listInfo.id }, { replace: true });
         setIsLoading(false);
         setCanEdit(
+          users.filter((u) => {
+            if (u.role === 0 || u.role === 2) return u.uid === user.id;
+          }).length > 0
+        );
+        setIsManager(
           users.filter((u) => {
             if (u.role === 0) return u.uid === user.id;
           }).length > 0
@@ -66,6 +99,7 @@ const CheckListPage = () => {
       setList(listInfo.checklist);
       setSearchParams({ listNo: listInfo.id }, { replace: true });
       setUrl(`${url}?listNo=${listInfo.id}`);
+      setChangeDone(false);
       setIsLoading(false);
     } catch (e) {
       setIsLoading(false);
@@ -76,15 +110,12 @@ const CheckListPage = () => {
     setIsLoading(true);
     try {
       await updateChecklist(listNo, title, description, list);
+      setChangeDone(false);
       setIsLoading(false);
     } catch (e) {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    getData();
-  }, []);
 
   return (
     <AuthGuard>
@@ -99,6 +130,21 @@ const CheckListPage = () => {
           />
         )}
       </AnimatePresence>
+      <Snackbar
+        open={showSnackbar}
+        autoHideDuration={6000}
+        message="You don't have access to edit this list"
+        action={
+          <IconButton
+            size='small'
+            aria-label='close'
+            color='inherit'
+            onClick={() => setShowSnackbar(false)}
+          >
+            <Close fontSize='small' />
+          </IconButton>
+        }
+      />
       <Grid
         container
         direction='row'
@@ -111,6 +157,8 @@ const CheckListPage = () => {
             title={title}
             setTitle={setTitle}
             description={description}
+            canEdit={canEdit}
+            setShowSnackbar={setShowSnackbar}
             setDescription={setDescription}
             list={list}
             setList={setList}
@@ -118,13 +166,29 @@ const CheckListPage = () => {
           />
         </Grid>
         <Grid item sm={2} xs={12}>
-          <Grid container direction='column' gap='1vh'>
-            <SaveSection
-              onClick={listNo ? updateList : createNewList}
-              disableButton={isLoading}
-            />
-            <ShareSection url={url} />
-            <UsersSection users={usersList} />
+          <Grid
+            container
+            direction='column'
+            justifyContent='space-between'
+            minHeight='95vh'
+          >
+            <Grid item xs={1}>
+              <SaveSection
+                onClick={listNo ? updateList : createNewList}
+                changeDone={changeDone}
+              />
+            </Grid>
+            <Grid item xs={1}>
+              <ShareSection url={url} />
+            </Grid>
+            <Grid item xs={10}>
+              <UsersSection
+                users={usersList}
+                isManager={isManager}
+                setIsLoading={setIsLoading}
+                setUsers={setUsersList}
+              />
+            </Grid>
           </Grid>
         </Grid>
       </Grid>

@@ -6,7 +6,7 @@ const ShareSection = ({ url }) => {
   const theme = useTheme();
 
   return (
-    <Paper sx={{ minHeight: '20vh', padding: '1em' }}>
+    <Paper sx={{ padding: '1em' }}>
       <Stack direction='column' justifyContent='center' alignItems='center'>
         <Typography
           variant='h3'
