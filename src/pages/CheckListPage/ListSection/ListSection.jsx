@@ -1,12 +1,22 @@
 import React, { useState } from 'react';
-import { Grid, Paper, Stack, TextField, IconButton } from '@mui/material';
+import {
+  Grid,
+  Paper,
+  Stack,
+  TextField,
+  IconButton,
+  Typography,
+  Modal,
+} from '@mui/material';
 import { AddTaskRounded, ArrowBack } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 
 import EditableContent from '../../../components/ui/EditableContent';
 import CustomCheckbox from '../../../components/ui/CustomCheckbox';
 import { Timestamp } from 'firebase/firestore';
+import moment from 'moment';
 
 const ListSection = ({
   title,
@@ -18,8 +28,12 @@ const ListSection = ({
   isLoading,
   canEdit,
   setShowSnackbar,
+  isManager,
+  deadline,
+  setDeadline,
 }) => {
   const [newItem, setNewItem] = useState('');
+  const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
   const theme = useTheme();
 
@@ -66,12 +80,77 @@ const ListSection = ({
         </IconButton>
         <Grid container direction='column' justifyContent='space-between'>
           <Stack direction='column'>
-            <EditableContent
-              text={title}
-              setText={setTitle}
-              canEdit={canEdit}
-              label='Title'
-            />
+            <Grid
+              container
+              direction='row'
+              justifyContent='space-between'
+              alignItems='center'
+              gap='1em'
+            >
+              <Grid item flexGrow={1}>
+                <EditableContent
+                  text={title}
+                  setText={setTitle}
+                  canEdit={canEdit}
+                  label='Title'
+                />
+              </Grid>
+              <Grid item>
+                {isManager && deadline === '' && (
+                  <Typography
+                    variant='h6'
+                    onClick={() => isManager && setShowModal(true)}
+                  >
+                    Set Deadline
+                  </Typography>
+                )}
+                {isManager && deadline !== '' && (
+                  <Typography
+                    variant='h6'
+                    onClick={() => isManager && setShowModal(true)}
+                  >
+                    Deadline: {deadline}
+                  </Typography>
+                )}
+                {!isManager && deadline !== '' && (
+                  <Typography
+                    variant='h6'
+                    onClick={() => isManager && setShowModal(true)}
+                  >
+                    Deadline: {deadline}
+                  </Typography>
+                )}
+                {!isManager && deadline === '' && (
+                  <Typography
+                    variant='h6'
+                    onClick={() => isManager && setShowModal(true)}
+                  >
+                    No Deadline Available
+                  </Typography>
+                )}
+
+                <Modal
+                  open={showModal}
+                  onClose={() => setShowModal(false)}
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Paper sx={{ padding: '1em' }}>
+                    <DateTimePicker
+                      value={deadline}
+                      label='Deadline'
+                      onChange={(val) =>
+                        setDeadline(moment(val).format('h:mm a LL'))
+                      }
+                      renderInput={(params) => <TextField {...params} />}
+                    />
+                  </Paper>
+                </Modal>
+              </Grid>
+            </Grid>
             <EditableContent
               text={description}
               setText={setDescription}

@@ -14,8 +14,6 @@ import {
   getDocs,
   query,
   updateDoc,
-  where,
-  collectionGroup,
 } from 'firebase/firestore';
 
 // action - state management
@@ -116,6 +114,7 @@ export const FirebaseProvider = ({ children }) => {
   const createNewChecklist = async (
     title,
     description,
+    deadline,
     checklist,
     uid,
     name,
@@ -131,6 +130,7 @@ export const FirebaseProvider = ({ children }) => {
     const newList = {
       title,
       description,
+      deadline,
       createdBy: uid,
       checklist: checklist,
       users: [newUser],
@@ -144,10 +144,11 @@ export const FirebaseProvider = ({ children }) => {
     };
   };
 
-  const updateChecklist = (id, title, description, checklist) =>
+  const updateChecklist = (id, title, deadline, description, checklist) =>
     updateDoc(doc(db, 'lists', id), {
       title,
       description,
+      deadline,
       checklist: checklist,
     });
 
@@ -165,7 +166,8 @@ export const FirebaseProvider = ({ children }) => {
     const lists = [];
     l.docs.map((list) => {
       if (list.data().users?.filter((u) => u.uid === id).length > 0)
-        lists.push({ ...list.data(), id: list.id });
+        return lists.push({ ...list.data(), id: list.id });
+      return;
     });
     return lists;
   };

@@ -1,6 +1,8 @@
 import { CssBaseline } from '@mui/material';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 
 import Login from './pages/auth/Login/Login';
 import theme from './theme/theme';
@@ -14,15 +16,17 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <AuthProvider>
-        <BrowserRouter>
-          <CssBaseline />
-          <Routes>
-            <Route path='/' element={<Login />} />
-            <Route path='/register' element={<Register />} />
-            <Route path='/home' element={<Home />} />
-            <Route path='/checklist' element={<CheckListPage />} />
-          </Routes>
-        </BrowserRouter>
+        <LocalizationProvider dateAdapter={AdapterMoment}>
+          <BrowserRouter>
+            <CssBaseline />
+            <Routes>
+              <Route path='/' element={<Login />} />
+              <Route path='/register' element={<Register />} />
+              <Route path='/home' element={<Home />} />
+              <Route path='/checklist' element={<CheckListPage />} />
+            </Routes>
+          </BrowserRouter>
+        </LocalizationProvider>
       </AuthProvider>
     </ThemeProvider>
   );

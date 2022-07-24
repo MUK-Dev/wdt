@@ -28,6 +28,7 @@ const CheckListPage = () => {
   const [canEdit, setCanEdit] = useState(listNo ? false : true);
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [changeDone, setChangeDone] = useState(false);
+  const [deadline, setDeadline] = useState('');
   const firstUpdate = useRef(true);
   const secondUpdate = useRef(true);
   const thirdUpdate = useRef(true);
@@ -51,7 +52,7 @@ const CheckListPage = () => {
       return;
     }
     setChangeDone(true);
-  }, [title, description, list]);
+  }, [title, description, list, deadline]);
 
   const getData = async () => {
     if (listNo) {
@@ -62,6 +63,7 @@ const CheckListPage = () => {
         setTitle(listInfo.title);
         setDescription(listInfo.description);
         setList(listInfo.checklist);
+        setDeadline(listInfo.deadline);
         setSearchParams({ listNo: listInfo.id }, { replace: true });
         setIsLoading(false);
         setCanEdit(
@@ -78,6 +80,9 @@ const CheckListPage = () => {
       } catch (e) {
         setIsLoading(false);
       }
+    } else {
+      setIsManager(true);
+      setCanEdit(true);
     }
   };
 
@@ -87,6 +92,7 @@ const CheckListPage = () => {
       const { listInfo, users } = await createNewChecklist(
         title,
         description,
+        deadline,
         list,
         user.id,
         user.name,
@@ -109,7 +115,7 @@ const CheckListPage = () => {
   const updateList = async () => {
     setIsLoading(true);
     try {
-      await updateChecklist(listNo, title, description, list);
+      await updateChecklist(listNo, title, deadline, description, list);
       setChangeDone(false);
       setIsLoading(false);
     } catch (e) {
@@ -163,6 +169,9 @@ const CheckListPage = () => {
             list={list}
             setList={setList}
             isLoading={isLoading}
+            isManager={isManager}
+            deadline={deadline}
+            setDeadline={setDeadline}
           />
         </Grid>
         <Grid item sm={2} xs={12}>

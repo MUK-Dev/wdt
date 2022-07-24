@@ -22,7 +22,7 @@ import useAuth from '../../../hooks/useAuth';
 
 const UsersSection = ({ users, isManager, setUsers, setIsLoading }) => {
   const theme = useTheme();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams, _] = useSearchParams();
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState({
     name: '',
@@ -62,7 +62,6 @@ const UsersSection = ({ users, isManager, setUsers, setIsLoading }) => {
       sx={{
         minHeight: '100%',
         padding: '1em',
-        overflow: 'auto',
       }}
     >
       <Typography

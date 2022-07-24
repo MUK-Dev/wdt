@@ -7,6 +7,7 @@ import {
   Typography,
   Divider,
 } from '@mui/material';
+import moment from 'moment';
 
 const CustomCheckbox = ({ created, index, checked, onChange, task }) => {
   const date = new Date(created.toDate());
@@ -34,7 +35,7 @@ const CustomCheckbox = ({ created, index, checked, onChange, task }) => {
         justifyContent='flex-start'
         alignItems='center'
       >
-        <Grid item xs={11}>
+        <Grid item xs={10}>
           <FormControlLabel
             control={<Checkbox color='success' checked={checked} />}
             sx={{ fontSize: '2rem' }}
@@ -42,10 +43,8 @@ const CustomCheckbox = ({ created, index, checked, onChange, task }) => {
             onChange={onChange}
           />
         </Grid>
-        <Grid item xs={1}>
-          <Typography>
-            {`${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`}
-          </Typography>
+        <Grid item xs={2}>
+          <Typography>{moment(date).format('h:mm a LL')}</Typography>
         </Grid>
         <Divider variant='middle' />
       </Grid>
