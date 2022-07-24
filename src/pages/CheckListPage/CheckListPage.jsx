@@ -15,17 +15,17 @@ import Modal from '../../components/ui/Modal';
 
 const CheckListPage = () => {
   const [title, setTitle] = useState('Title');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const listNo = searchParams.get('listNo');
   const [description, setDescription] = useState('Description');
   const [list, setList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [usersList, setUsersList] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const { createNewChecklist, user, getList, updateChecklist } = useAuth();
-  const [searchParams, setSearchParams] = useSearchParams();
   const [url, setUrl] = useState(`${window.location.href}`);
-  const [canEdit, setCanEdit] = useState(false);
   const [isManager, setIsManager] = useState(false);
-  const listNo = searchParams.get('listNo');
+  const [canEdit, setCanEdit] = useState(listNo ? false : true);
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [changeDone, setChangeDone] = useState(false);
   const firstUpdate = useRef(true);
