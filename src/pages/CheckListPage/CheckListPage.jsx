@@ -150,7 +150,7 @@ const CheckListPage = () => {
         direction='row'
         justifyContent='center'
         sx={{ padding: '1em' }}
-        gap='1vh'
+        gap='1em'
       >
         <Grid item sm={6} xs={12}>
           <ListSection
@@ -169,19 +169,21 @@ const CheckListPage = () => {
           <Grid
             container
             direction='column'
+            gap='1em'
+            height='95vh'
             justifyContent='space-between'
-            minHeight='95vh'
+            flexWrap='nowrap'
           >
-            <Grid item xs={1}>
+            <Grid item>
               <SaveSection
                 onClick={listNo ? updateList : createNewList}
                 changeDone={changeDone}
               />
             </Grid>
-            <Grid item xs={1}>
+            <Grid item>
               <ShareSection url={url} />
             </Grid>
-            <Grid item xs={10}>
+            <Grid item flexGrow={1} overflow='auto'>
               <UsersSection
                 users={usersList}
                 isManager={isManager}

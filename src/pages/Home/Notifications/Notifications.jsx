@@ -6,7 +6,7 @@ const Notifications = () => {
     <Paper
       sx={{
         minHeight: '100%',
-        padding: '1vh',
+        padding: '1em',
       }}
     >
       <Typography>Notifications</Typography>

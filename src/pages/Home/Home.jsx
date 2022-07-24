@@ -57,14 +57,15 @@ const Home = () => {
               transition={{ duration: 1 }}
               height='80vh'
               justifyContent='space-between'
+              flexWrap='nowrap'
             >
-              <Grid item xs={3}>
+              <Grid item>
                 <UserInfo setIsLoading={setIsLoading} />
               </Grid>
-              <Grid item xs={1}>
+              <Grid item>
                 <AccessList />
               </Grid>
-              <Grid item xs={12} lg={5} xl={7}>
+              <Grid item flexGrow={1} overflow='auto'>
                 <Notifications />
               </Grid>
             </Grid>

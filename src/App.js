@@ -8,6 +8,7 @@ import Register from './pages/auth/Register/Register';
 import { FirebaseProvider as AuthProvider } from './contexts/FirebaseContext';
 import Home from './pages/Home/Home';
 import CheckListPage from './pages/CheckListPage/CheckListPage';
+import './App.css';
 
 function App() {
   return (
