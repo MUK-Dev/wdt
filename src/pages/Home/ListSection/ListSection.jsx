@@ -9,9 +9,11 @@ import {
   ListItemButton,
   ListItemText,
   Button,
+  Grid,
+  Divider,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { AddCircleOutline } from '@mui/icons-material';
+import { AddCircleOutline, ExitToApp } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 
 import useAuth from '../../../hooks/useAuth';
@@ -22,7 +24,7 @@ const ListSection = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [lists, setLists] = useState([]);
-  const { getUserLists, user } = useAuth();
+  const { getUserLists, user, exitList } = useAuth();
   const left = {
     hidden: {
       x: -40,
@@ -60,6 +62,19 @@ const ListSection = () => {
     getData();
   }, []);
 
+  const exitFromList = async (listId, uid) => {
+    setIsLoading(true);
+    try {
+      await exitList(listId, uid);
+      const newLists = lists.filter((l) => l.id !== listId);
+      setLists(newLists);
+      setIsLoading(false);
+    } catch (e) {
+      setIsLoading(false);
+      console.log(e);
+    }
+  };
+
   const list = (
     <>
       <Typography
@@ -79,16 +94,41 @@ const ListSection = () => {
             animate='animate'
             transition={{ delay: 0.2 * index }}
           >
-            <ListItem
-              disablePadding
-              onClick={() =>
-                navigate({ pathname: '/checklist', search: `?listNo=${l.id}` })
-              }
-            >
-              <ListItemButton>
-                <ListItemText primary={l.title} secondary={l.description} />
-              </ListItemButton>
-            </ListItem>
+            <Grid container alignItems='stretch' flexWrap='nowrap'>
+              <Grid item flexGrow={1}>
+                <ListItem
+                  disablePadding
+                  sx={{ wordWrap: 'break-word' }}
+                  onClick={() =>
+                    navigate({
+                      pathname: '/checklist',
+                      search: `?listNo=${l.id}`,
+                    })
+                  }
+                >
+                  <ListItemButton>
+                    <ListItemText primary={l.title} secondary={l.description} />
+                  </ListItemButton>
+                </ListItem>
+              </Grid>
+              <Grid item>
+                <Button
+                  size='small'
+                  variant='contained'
+                  color='error'
+                  disableElevation
+                  sx={{
+                    height: '100%',
+                    borderRadius: 0,
+                    minWidth: 0,
+                  }}
+                  onClick={() => exitFromList(l.id, user.id)}
+                >
+                  <ExitToApp htmlColor={theme.palette.primary.light} />
+                </Button>
+              </Grid>
+            </Grid>
+            <Divider variant='middle' />
           </motion.div>
         ))}
       </List>

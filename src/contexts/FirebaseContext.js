@@ -181,6 +181,14 @@ export const FirebaseProvider = ({ children }) => {
     };
   };
 
+  const exitList = async (listId, uid) => {
+    const listInfo = await getDoc(doc(db, 'lists', listId));
+    const newList = listInfo.data().users.filter((u) => u.uid !== uid);
+    await updateDoc(doc(db, 'lists', listId), {
+      users: newList,
+    });
+  };
+
   const requestAccessToList = async (
     listId,
     prevUsers,
@@ -270,6 +278,7 @@ export const FirebaseProvider = ({ children }) => {
         updateChecklist,
         requestAccessToList,
         promoteUser,
+        exitList,
       }}
     >
       {children}

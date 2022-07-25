@@ -105,7 +105,6 @@ const CheckListPage = () => {
 
   const createNewList = async () => {
     setIsLoading(true);
-    console.log('createNewList');
     try {
       const { listInfo, users } = await createNewChecklist(
         title,
@@ -179,7 +178,7 @@ const CheckListPage = () => {
         sx={{ padding: '1em' }}
         gap='1em'
       >
-        <Grid item sm={6} xs={12}>
+        <Grid item sm={9} xs={12}>
           <ListSection
             title={title}
             setTitle={setTitle}

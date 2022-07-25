@@ -7,6 +7,7 @@ import {
   IconButton,
   Typography,
   Modal,
+  Button,
 } from '@mui/material';
 import { AddTaskRounded, ArrowBack } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -34,23 +35,30 @@ const ListSection = ({
 }) => {
   const [newItem, setNewItem] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [showRemoveModal, setShowRemoveModal] = useState(false);
   const navigate = useNavigate();
   const theme = useTheme();
 
   const addNewItem = () => {
     if (newItem !== '' && canEdit) {
-      const newArray = [...list];
-      newArray.push({
+      const newList = [...list];
+      newList.push({
         checked: false,
         task: newItem,
         created: Timestamp.fromDate(new Date()),
       });
-      setList(newArray);
+      setList(newList);
       setNewItem('');
     } else {
       setShowSnackbar(true);
     }
   };
+
+  const removeItem = (task) => {
+    const newList = list.filter((l) => l.task !== task);
+    setList(newList);
+  };
+
   return (
     <Grid container>
       <Paper
@@ -172,6 +180,8 @@ const ListSection = ({
                   checked={checked}
                   task={task}
                   created={created}
+                  isManager={isManager}
+                  removeItem={() => removeItem(task)}
                   index={index}
                   onChange={(e) => {
                     if (canEdit) {
@@ -188,7 +198,7 @@ const ListSection = ({
           </Stack>
 
           <Grid container direction='row' alignItems='center'>
-            <Grid item xs={11}>
+            <Grid item flexGrow={1}>
               <TextField
                 label='Add To Checklist'
                 variant='outlined'
@@ -199,7 +209,7 @@ const ListSection = ({
                 disabled={isLoading || !canEdit}
               />
             </Grid>
-            <Grid item xs={1}>
+            <Grid item>
               <IconButton
                 color='success'
                 size='large'
