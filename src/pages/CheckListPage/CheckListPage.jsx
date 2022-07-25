@@ -12,6 +12,8 @@ import Loader from '../../components/ui/Loader';
 import useAuth from '../../hooks/useAuth';
 import ShareSection from './ShareSection/ShareSection';
 import Modal from '../../components/ui/Modal';
+import { disableButton } from '../../utils/disable-button';
+import moment from 'moment';
 
 const CheckListPage = () => {
   const [title, setTitle] = useState('Title');
@@ -29,6 +31,9 @@ const CheckListPage = () => {
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [changeDone, setChangeDone] = useState(false);
   const [deadline, setDeadline] = useState('');
+  const [snackbarText, setSnackbarText] = useState(
+    'You do not have access to edit this list'
+  );
   const firstUpdate = useRef(true);
   const secondUpdate = useRef(true);
   const thirdUpdate = useRef(true);
@@ -63,19 +68,31 @@ const CheckListPage = () => {
         setTitle(listInfo.title);
         setDescription(listInfo.description);
         setList(listInfo.checklist);
-        setDeadline(listInfo.deadline);
+        const gotDeadline = listInfo.deadline
+          ? JSON.parse(listInfo.deadline)
+          : '';
+        setDeadline(listInfo.deadline ? JSON.parse(listInfo.deadline) : '');
         setSearchParams({ listNo: listInfo.id }, { replace: true });
         setIsLoading(false);
-        setCanEdit(
-          users.filter((u) => {
-            if (u.role === 0 || u.role === 2) return u.uid === user.id;
-          }).length > 0
-        );
-        setIsManager(
-          users.filter((u) => {
-            if (u.role === 0) return u.uid === user.id;
-          }).length > 0
-        );
+        const managerListLength = users.filter((u) => {
+          if (u.role === 0) return u.uid === user.id;
+        }).length;
+        setIsManager(managerListLength > 0);
+        if (!(managerListLength > 0)) {
+          if (gotDeadline === '' || moment(gotDeadline) > moment()) {
+            console.log(gotDeadline);
+            setCanEdit(
+              users.filter((u) => {
+                if (u.role === 2) return u.uid === user.id;
+              }).length > 0
+            );
+          } else {
+            setSnackbarText('Deadline is crossed');
+            setCanEdit(false);
+          }
+        } else {
+          setCanEdit(true);
+        }
         setShowModal(!(users.filter((u) => u.name === user.name).length > 0));
       } catch (e) {
         setIsLoading(false);
@@ -88,6 +105,7 @@ const CheckListPage = () => {
 
   const createNewList = async () => {
     setIsLoading(true);
+    console.log('createNewList');
     try {
       const { listInfo, users } = await createNewChecklist(
         title,
@@ -103,6 +121,8 @@ const CheckListPage = () => {
       setTitle(listInfo.title);
       setDescription(listInfo.description);
       setList(listInfo.checklist);
+
+      setDeadline(listInfo.deadline ? JSON.parse(listInfo.deadline) : '');
       setSearchParams({ listNo: listInfo.id }, { replace: true });
       setUrl(`${url}?listNo=${listInfo.id}`);
       setChangeDone(false);
@@ -119,6 +139,7 @@ const CheckListPage = () => {
       setChangeDone(false);
       setIsLoading(false);
     } catch (e) {
+      console.log(e);
       setIsLoading(false);
     }
   };
@@ -139,7 +160,7 @@ const CheckListPage = () => {
       <Snackbar
         open={showSnackbar}
         autoHideDuration={6000}
-        message="You don't have access to edit this list"
+        message={snackbarText}
         action={
           <IconButton
             size='small'
@@ -186,6 +207,7 @@ const CheckListPage = () => {
             <Grid item>
               <SaveSection
                 onClick={listNo ? updateList : createNewList}
+                disableButton={disableButton(isLoading, changeDone, canEdit)}
                 changeDone={changeDone}
               />
             </Grid>

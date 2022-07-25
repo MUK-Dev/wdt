@@ -130,7 +130,7 @@ export const FirebaseProvider = ({ children }) => {
     const newList = {
       title,
       description,
-      deadline,
+      deadline: JSON.stringify(deadline),
       createdBy: uid,
       checklist: checklist,
       users: [newUser],
@@ -148,7 +148,7 @@ export const FirebaseProvider = ({ children }) => {
     updateDoc(doc(db, 'lists', id), {
       title,
       description,
-      deadline,
+      deadline: JSON.stringify(deadline),
       checklist: checklist,
     });
 

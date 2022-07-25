@@ -109,7 +109,7 @@ const ListSection = ({
                     variant='h6'
                     onClick={() => isManager && setShowModal(true)}
                   >
-                    Deadline: {deadline}
+                    Deadline: {moment(deadline).format('h:mm a LL')}
                   </Typography>
                 )}
                 {!isManager && deadline !== '' && (
@@ -117,7 +117,7 @@ const ListSection = ({
                     variant='h6'
                     onClick={() => isManager && setShowModal(true)}
                   >
-                    Deadline: {deadline}
+                    Deadline: {moment(deadline).format('h:mm a LL')}
                   </Typography>
                 )}
                 {!isManager && deadline === '' && (
@@ -142,9 +142,7 @@ const ListSection = ({
                     <DateTimePicker
                       value={deadline}
                       label='Deadline'
-                      onChange={(val) =>
-                        setDeadline(moment(val).format('h:mm a LL'))
-                      }
+                      onChange={(val) => setDeadline(val)}
                       renderInput={(params) => <TextField {...params} />}
                     />
                   </Paper>

@@ -20,7 +20,7 @@ const SaveSection = ({ onClick, disableButton, changeDone }) => {
           variant='contained'
           color='success'
           onClick={onClick}
-          disabled={!changeDone}
+          disabled={disableButton}
           sx={{
             color: theme.palette.primary.light,
             padding: '1em 2em',
