@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { createContext, useEffect, useReducer, useState, useRef } from 'react';
+import { createContext, useEffect, useReducer, useState } from 'react';
 
 // third-party
 import firebase from 'firebase/compat/app';
@@ -54,6 +54,9 @@ export const FirebaseProvider = ({ children }) => {
   });
   const [notifications, setNotifications] = useState([]);
   const [notificationLoading, setNotificationLoading] = useState(false);
+  const [showNotificationSnackbar, setShowNotificationSnackbar] =
+    useState(false);
+  const [snackbarNotification, setSnackbarNotification] = useState('');
 
   useEffect(
     () =>
@@ -113,7 +116,15 @@ export const FirebaseProvider = ({ children }) => {
           const n = [];
           querySnapshot.forEach((doc) => n.push(doc.data()));
           setNotifications(n);
+          setShowNotificationSnackbar(false);
           setNotificationLoading(false);
+          querySnapshot.docChanges().forEach((change) => {
+            if (change.type === 'added') {
+              console.log('New Notification', change.doc.data());
+              setSnackbarNotification(change.doc.data().message);
+              setShowNotificationSnackbar(true);
+            }
+          });
         },
         (err) => {
           console.log(err);
@@ -330,6 +341,9 @@ export const FirebaseProvider = ({ children }) => {
         createNotification,
         notifications,
         notificationLoading,
+        showNotificationSnackbar,
+        setShowNotificationSnackbar,
+        snackbarNotification,
       }}
     >
       {children}

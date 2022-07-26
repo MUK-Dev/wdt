@@ -24,7 +24,15 @@ const CheckListPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [usersList, setUsersList] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const { createNewChecklist, user, getList, updateChecklist } = useAuth();
+  const {
+    createNewChecklist,
+    user,
+    getList,
+    updateChecklist,
+    showNotificationSnackbar,
+    setShowNotificationSnackbar,
+    snackbarNotification,
+  } = useAuth();
   const [url, setUrl] = useState(`${window.location.href}`);
   const [isManager, setIsManager] = useState(false);
   const [canEdit, setCanEdit] = useState(listNo ? false : true);
@@ -71,6 +79,7 @@ const CheckListPage = () => {
         setIsLoading(false);
         const managerListLength = users.filter((u) => {
           if (u.role === 0) return u.uid === user.id;
+          return;
         }).length;
         setIsManager(managerListLength > 0);
         if (!(managerListLength > 0)) {
@@ -79,6 +88,7 @@ const CheckListPage = () => {
             setCanEdit(
               users.filter((u) => {
                 if (u.role === 2) return u.uid === user.id;
+                return;
               }).length > 0
             );
           } else {
@@ -152,6 +162,20 @@ const CheckListPage = () => {
           />
         )}
       </AnimatePresence>
+      <Snackbar
+        open={showNotificationSnackbar}
+        message={snackbarNotification}
+        action={
+          <IconButton
+            size='small'
+            aria-label='close'
+            color='inherit'
+            onClick={() => setShowNotificationSnackbar(false)}
+          >
+            <Close fontSize='small' />
+          </IconButton>
+        }
+      />
       <Snackbar
         open={showSnackbar}
         autoHideDuration={6000}
