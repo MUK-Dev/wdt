@@ -52,10 +52,6 @@ const CheckListPage = () => {
       secondUpdate.current = false;
       return;
     }
-    if (thirdUpdate.current) {
-      thirdUpdate.current = false;
-      return;
-    }
     setChangeDone(true);
   }, [title, description, list, deadline]);
 
