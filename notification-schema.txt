@@ -1,0 +1,5 @@
+{
+    reciever: ID,
+    roomTitle: String,
+    message: String,
+}

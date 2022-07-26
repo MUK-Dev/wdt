@@ -6,9 +6,15 @@ import { motion } from 'framer-motion';
 import useAuth from '../../hooks/useAuth';
 import Loader from './Loader';
 
-const Modal = ({ setShowModal, usersList, setUsersList, listNo }) => {
+const Modal = ({
+  setShowModal,
+  usersList,
+  setUsersList,
+  listNo,
+  roomTitle,
+}) => {
   const theme = useTheme();
-  const { user, requestAccessToList } = useAuth();
+  const { user, requestAccessToList, createNotification } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   const backdrop = {
@@ -48,6 +54,19 @@ const Modal = ({ setShowModal, usersList, setUsersList, listNo }) => {
         user.avatar,
         1
       );
+      usersList.forEach(async (u) => {
+        if (u.role === 0) {
+          try {
+            await createNotification(
+              u.uid,
+              `${user.name} has requested access to the list`,
+              roomTitle
+            );
+          } catch (e) {
+            console.log(e);
+          }
+        }
+      });
       const newList = [...usersList];
       newList.push({
         name: user.name,

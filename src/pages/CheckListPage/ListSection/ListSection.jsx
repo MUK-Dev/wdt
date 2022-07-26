@@ -13,11 +13,11 @@ import { AddTaskRounded, ArrowBack } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@mui/material/styles';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { Timestamp } from 'firebase/firestore';
+import moment from 'moment';
 
 import EditableContent from '../../../components/ui/EditableContent';
 import CustomCheckbox from '../../../components/ui/CustomCheckbox';
-import { Timestamp } from 'firebase/firestore';
-import moment from 'moment';
 
 const ListSection = ({
   title,
@@ -35,7 +35,6 @@ const ListSection = ({
 }) => {
   const [newItem, setNewItem] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const [showRemoveModal, setShowRemoveModal] = useState(false);
   const navigate = useNavigate();
   const theme = useTheme();
 

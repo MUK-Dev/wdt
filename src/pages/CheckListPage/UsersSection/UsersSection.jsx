@@ -20,7 +20,13 @@ import { motion } from 'framer-motion';
 import { getRole } from '../../../utils/get-role';
 import useAuth from '../../../hooks/useAuth';
 
-const UsersSection = ({ users, isManager, setUsers, setIsLoading }) => {
+const UsersSection = ({
+  users,
+  isManager,
+  setUsers,
+  setIsLoading,
+  roomTitle,
+}) => {
   const theme = useTheme();
   const [searchParams, _] = useSearchParams();
   const [showModal, setShowModal] = useState(false);
@@ -31,7 +37,7 @@ const UsersSection = ({ users, isManager, setUsers, setIsLoading }) => {
     index: '',
   });
   const listNo = searchParams.get('listNo');
-  const { promoteUser } = useAuth();
+  const { promoteUser, createNotification, user } = useAuth();
 
   const usersAnimation = {
     initial: {
@@ -47,11 +53,17 @@ const UsersSection = ({ users, isManager, setUsers, setIsLoading }) => {
     try {
       await promoteUser(listNo, users, index, toRole);
       const newList = [...users];
+      await createNotification(
+        newList[index].uid,
+        `${user.name} promoted you to ${getRole(toRole)}`,
+        roomTitle
+      );
       newList[index].role = toRole;
       setUsers(newList);
       setIsLoading(false);
       setShowModal(false);
     } catch (e) {
+      console.log(e);
       setIsLoading(false);
       setShowModal(false);
     }

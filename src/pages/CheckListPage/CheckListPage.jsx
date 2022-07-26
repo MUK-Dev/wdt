@@ -3,6 +3,7 @@ import { IconButton, Grid, Snackbar } from '@mui/material';
 import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { Close } from '@mui/icons-material';
+import moment from 'moment';
 
 import AuthGuard from '../../utils/AuthGuard';
 import ListSection from './ListSection/ListSection';
@@ -13,7 +14,6 @@ import useAuth from '../../hooks/useAuth';
 import ShareSection from './ShareSection/ShareSection';
 import Modal from '../../components/ui/Modal';
 import { disableButton } from '../../utils/disable-button';
-import moment from 'moment';
 
 const CheckListPage = () => {
   const [title, setTitle] = useState('Title');
@@ -36,7 +36,6 @@ const CheckListPage = () => {
   );
   const firstUpdate = useRef(true);
   const secondUpdate = useRef(true);
-  const thirdUpdate = useRef(true);
 
   useEffect(() => {
     getData();
@@ -149,6 +148,7 @@ const CheckListPage = () => {
             usersList={usersList}
             setUsersList={setUsersList}
             listNo={listNo}
+            roomTitle={title}
           />
         )}
       </AnimatePresence>
@@ -215,6 +215,7 @@ const CheckListPage = () => {
                 isManager={isManager}
                 setIsLoading={setIsLoading}
                 setUsers={setUsersList}
+                roomTitle={title}
               />
             </Grid>
           </Grid>

@@ -11,6 +11,7 @@ const UserInfo = ({ setIsLoading }) => {
   const navigate = useNavigate();
   const theme = useTheme();
   const main = theme.palette.primary.main;
+  const success = theme.palette.success.dark;
   return (
     <Paper
       sx={{
@@ -44,10 +45,15 @@ const UserInfo = ({ setIsLoading }) => {
             }}
           />
           <Grid container direction='row' justifyContent='center'>
-            <Typography variant='h3' color={main}>
+            <Typography variant='h3' color={success}>
               {user.name}
             </Typography>
-            {user.verified && <VerifiedOutlined htmlColor={main} />}
+            {user.verified && (
+              <VerifiedOutlined
+                htmlColor={success}
+                sx={{ marginLeft: '0.3em' }}
+              />
+            )}
           </Grid>
           <Typography variant='h4' color={main}>
             {user.email}

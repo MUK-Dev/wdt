@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { createContext, useEffect, useReducer, useState } from 'react';
+import { createContext, useEffect, useReducer, useState, useRef } from 'react';
 
 // third-party
 import firebase from 'firebase/compat/app';
@@ -14,6 +14,10 @@ import {
   getDocs,
   query,
   updateDoc,
+  Timestamp,
+  onSnapshot,
+  where,
+  orderBy,
 } from 'firebase/firestore';
 
 // action - state management
@@ -24,10 +28,8 @@ import accountReducer from '../store/accountReducer';
 import Loader from '../components/ui/Loader';
 import { FIREBASE_API } from '../config';
 
-let app, db;
-
-app = firebase.initializeApp(FIREBASE_API);
-db = getFirestore(app);
+export const app = firebase.initializeApp(FIREBASE_API);
+export const db = getFirestore(app);
 
 // const
 const initialState = {
@@ -43,12 +45,15 @@ const FirebaseContext = createContext(null);
 export const FirebaseProvider = ({ children }) => {
   const [state, dispatch] = useReducer(accountReducer, initialState);
   const [userInfo, setUserInfo] = useState({
+    id: '',
     fname: '',
     lname: '',
     company: '',
     avatar: '',
     verified: false,
   });
+  const [notifications, setNotifications] = useState([]);
+  const [notificationLoading, setNotificationLoading] = useState(false);
 
   useEffect(
     () =>
@@ -95,6 +100,29 @@ export const FirebaseProvider = ({ children }) => {
     [dispatch]
   );
 
+  useEffect(() => {
+    setNotificationLoading(true);
+    if (state.user?.id) {
+      onSnapshot(
+        query(
+          collection(db, 'notifications'),
+          where('reciever', '==', state.user.id),
+          orderBy('created', 'desc')
+        ),
+        (querySnapshot) => {
+          const n = [];
+          querySnapshot.forEach((doc) => n.push(doc.data()));
+          setNotifications(n);
+          setNotificationLoading(false);
+        },
+        (err) => {
+          console.log(err);
+          setNotificationLoading(false);
+        }
+      );
+    }
+  }, [state.user]);
+
   const firebaseEmailPasswordSignIn = async (email, password) => {
     const user = await firebase
       .auth()
@@ -102,6 +130,7 @@ export const FirebaseProvider = ({ children }) => {
     const uInfo = await getDoc(doc(db, 'profiles', user.user.uid));
     const userInfo = uInfo.data();
     setUserInfo({
+      id: uInfo.id,
       fname: userInfo.fname,
       lname: userInfo.lname,
       company: userInfo.company,
@@ -181,6 +210,16 @@ export const FirebaseProvider = ({ children }) => {
     };
   };
 
+  const createNotification = async (reciever, message, roomTitle) => {
+    const newNotification = {
+      reciever,
+      message,
+      roomTitle,
+      created: Timestamp.fromDate(new Date()),
+    };
+    await addDoc(collection(db, 'notifications'), newNotification);
+  };
+
   const exitList = async (listId, uid) => {
     const listInfo = await getDoc(doc(db, 'lists', listId));
     const newList = listInfo.data().users.filter((u) => u.uid !== uid);
@@ -220,6 +259,14 @@ export const FirebaseProvider = ({ children }) => {
         company: '',
       };
       await setDoc(doc(db, 'profiles', uid), profile);
+      setUserInfo({
+        id: uid,
+        fname: '',
+        lname: '',
+        company: '',
+        avatar: '',
+        verified: '',
+      });
     }
     return auth;
   };
@@ -241,6 +288,7 @@ export const FirebaseProvider = ({ children }) => {
     };
     await setDoc(doc(db, 'profiles', uid), profile);
     setUserInfo({
+      id: uid,
       fname,
       lname,
       avatar: avatar_url,
@@ -279,6 +327,9 @@ export const FirebaseProvider = ({ children }) => {
         requestAccessToList,
         promoteUser,
         exitList,
+        createNotification,
+        notifications,
+        notificationLoading,
       }}
     >
       {children}
