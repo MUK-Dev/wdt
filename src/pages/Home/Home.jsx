@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Grid, Container } from '@mui/material';
 
 import { motion } from 'framer-motion';
@@ -9,6 +9,7 @@ import UserInfo from './UserInfo/UserInfo';
 import Notifications from './Notifications/Notifications';
 import Loader from '../../components/ui/Loader';
 import AccessList from './AccessList/AccessList';
+import useAuth from '../../hooks/useAuth';
 
 const Home = () => {
   const right = {
@@ -27,6 +28,37 @@ const Home = () => {
   };
 
   const [isLoading, setIsLoading] = useState(false);
+  const [isListLoading, setIsListLoading] = useState(false);
+  const [lists, setLists] = useState([]);
+  const { getUserLists, user, exitList } = useAuth();
+
+  const getData = async () => {
+    setIsListLoading(true);
+    try {
+      const gotLists = await getUserLists(user.id);
+      setLists(gotLists.reverse());
+      setIsListLoading(false);
+    } catch (e) {
+      setIsListLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getData();
+  }, []);
+
+  const exitFromList = async (listId, uid) => {
+    setIsLoading(true);
+    try {
+      await exitList(listId, uid);
+      const newLists = lists.filter((l) => l.id !== listId);
+      setLists(newLists);
+      setIsLoading(false);
+    } catch (e) {
+      setIsLoading(false);
+      console.log(e);
+    }
+  };
 
   return (
     <AuthGuard>
@@ -42,7 +74,11 @@ const Home = () => {
           alignItems='center'
         >
           <Grid item sm={5} xs={12}>
-            <ListSection />
+            <ListSection
+              isListLoading={isListLoading}
+              lists={lists}
+              exitFromList={(listId, uid) => exitFromList(listId, uid)}
+            />
           </Grid>
           <Grid item sm={4} xs={12}>
             <Grid
@@ -66,7 +102,7 @@ const Home = () => {
                 <AccessList />
               </Grid>
               <Grid item flexGrow={1} overflow='auto'>
-                <Notifications />
+                <Notifications lists={lists} />
               </Grid>
             </Grid>
           </Grid>

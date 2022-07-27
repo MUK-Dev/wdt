@@ -18,6 +18,7 @@ import {
   onSnapshot,
   where,
   orderBy,
+  deleteDoc,
 } from 'firebase/firestore';
 
 // action - state management
@@ -114,13 +115,20 @@ export const FirebaseProvider = ({ children }) => {
         ),
         (querySnapshot) => {
           const n = [];
-          querySnapshot.forEach((doc) => n.push(doc.data()));
+          querySnapshot.docs.slice(0, 10).forEach((doc) => n.push(doc.data()));
+          if (querySnapshot.size > 10) {
+            querySnapshot.docs
+              .slice(10, querySnapshot.size)
+              .forEach(
+                async (d) => await deleteDoc(doc(db, 'notifications', d.id))
+              );
+          }
+
           setNotifications(n);
           setShowNotificationSnackbar(false);
           setNotificationLoading(false);
           querySnapshot.docChanges().forEach((change) => {
             if (change.type === 'added') {
-              console.log('New Notification', change.doc.data());
               setSnackbarNotification(change.doc.data().message);
               setShowNotificationSnackbar(true);
             }

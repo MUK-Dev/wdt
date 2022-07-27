@@ -19,12 +19,10 @@ import { motion } from 'framer-motion';
 import useAuth from '../../../hooks/useAuth';
 import Loader from '../../../components/ui/Loader';
 
-const ListSection = () => {
+const ListSection = ({ lists, exitFromList, isListLoading }) => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
-  const [lists, setLists] = useState([]);
-  const { getUserLists, user, exitList } = useAuth();
+  const { user } = useAuth();
   const left = {
     hidden: {
       x: -40,
@@ -46,33 +44,6 @@ const ListSection = () => {
     animate: {
       opacity: 1,
     },
-  };
-  const getData = async () => {
-    setIsLoading(true);
-    try {
-      const gotLists = await getUserLists(user.id);
-      setLists(gotLists.reverse());
-      setIsLoading(false);
-    } catch (e) {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    getData();
-  }, []);
-
-  const exitFromList = async (listId, uid) => {
-    setIsLoading(true);
-    try {
-      await exitList(listId, uid);
-      const newLists = lists.filter((l) => l.id !== listId);
-      setLists(newLists);
-      setIsLoading(false);
-    } catch (e) {
-      setIsLoading(false);
-      console.log(e);
-    }
   };
 
   const list = (
@@ -169,7 +140,7 @@ const ListSection = () => {
       exit='exit'
       transition={{ duration: 1 }}
     >
-      {isLoading && <Loader />}
+      {isListLoading && <Loader />}
       <Stack
         alignItems='center'
         justifyContent='center'
