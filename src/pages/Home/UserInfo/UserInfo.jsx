@@ -4,10 +4,10 @@ import { useTheme } from '@mui/material/styles';
 import { VerifiedOutlined, Logout } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
-import useAuth from '../../../hooks/useAuth';
+import useFirebase from '../../../hooks/useFirebase';
 
 const UserInfo = ({ setIsLoading }) => {
-  const { user, logout } = useAuth();
+  const { user, logout } = useFirebase();
   const navigate = useNavigate();
   const theme = useTheme();
   const main = theme.palette.primary.main;
@@ -67,6 +67,7 @@ const UserInfo = ({ setIsLoading }) => {
             variant='text'
             color='success'
             sx={{ color: theme.palette.success.dark }}
+            onClick={() => navigate('/profile')}
           >
             Edit Profile
           </Button>

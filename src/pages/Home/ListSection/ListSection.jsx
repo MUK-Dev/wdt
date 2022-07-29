@@ -16,13 +16,13 @@ import { useTheme } from '@mui/material/styles';
 import { AddCircleOutline, ExitToApp } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 
-import useAuth from '../../../hooks/useAuth';
+import useFirebase from '../../../hooks/useFirebase';
 import Loader from '../../../components/ui/Loader';
 
 const ListSection = ({ lists, exitFromList, isListLoading }) => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user } = useFirebase();
   const left = {
     hidden: {
       x: -40,

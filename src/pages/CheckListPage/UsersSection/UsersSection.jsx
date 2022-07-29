@@ -18,7 +18,7 @@ import { ManageAccounts } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 
 import { getRole } from '../../../utils/get-role';
-import useAuth from '../../../hooks/useAuth';
+import useFirebase from '../../../hooks/useFirebase';
 
 const UsersSection = ({
   users,
@@ -37,7 +37,7 @@ const UsersSection = ({
     index: '',
   });
   const listNo = searchParams.get('listNo');
-  const { promoteUser, createNotification, user } = useAuth();
+  const { promoteUser, createNotification, user } = useFirebase();
 
   const usersAnimation = {
     initial: {

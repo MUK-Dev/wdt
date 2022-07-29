@@ -45,14 +45,6 @@ const FirebaseContext = createContext(null);
 
 export const FirebaseProvider = ({ children }) => {
   const [state, dispatch] = useReducer(accountReducer, initialState);
-  const [userInfo, setUserInfo] = useState({
-    id: '',
-    fname: '',
-    lname: '',
-    company: '',
-    avatar: '',
-    verified: false,
-  });
   const [notifications, setNotifications] = useState([]);
   const [notificationLoading, setNotificationLoading] = useState(false);
   const [showNotificationSnackbar, setShowNotificationSnackbar] =
@@ -63,6 +55,8 @@ export const FirebaseProvider = ({ children }) => {
     () =>
       firebase.auth().onAuthStateChanged(async (user) => {
         if (user?.providerData[0].providerId === 'google.com') {
+          const uInfo = await getDoc(doc(db, 'profiles', user.uid));
+          const userI = uInfo.data();
           dispatch({
             type: LOGIN,
             payload: {
@@ -71,15 +65,16 @@ export const FirebaseProvider = ({ children }) => {
                 id: user.uid,
                 email: user.email,
                 name: user.displayName,
-                company: userInfo.company,
+                company: userI?.company,
                 avatar: user.photoURL,
                 verified: user.emailVerified ?? false,
+                provider: 'google',
               },
             },
           });
         } else if (user?.providerData[0].providerId === 'password') {
           const uInfo = await getDoc(doc(db, 'profiles', user.uid));
-          const userInfo = uInfo.data();
+          const userI = uInfo.data();
           dispatch({
             type: LOGIN,
             payload: {
@@ -87,10 +82,13 @@ export const FirebaseProvider = ({ children }) => {
               user: {
                 id: user.uid,
                 email: user.email,
-                name: `${userInfo.fname} ${userInfo.lname}`,
-                company: userInfo.company,
-                avatar: userInfo.avatar_url,
+                name: `${userI.fname} ${userI.lname}`,
+                fname: userI.fname,
+                lname: userI.lname,
+                company: userI.company,
+                avatar: userI.avatar_url,
                 verified: user.emailVerified ?? false,
+                provider: 'password',
               },
             },
           });
@@ -146,17 +144,33 @@ export const FirebaseProvider = ({ children }) => {
     const user = await firebase
       .auth()
       .signInWithEmailAndPassword(email, password);
-    const uInfo = await getDoc(doc(db, 'profiles', user.user.uid));
-    const userInfo = uInfo.data();
-    setUserInfo({
-      id: uInfo.id,
-      fname: userInfo.fname,
-      lname: userInfo.lname,
-      company: userInfo.company,
-      avatar: userInfo.avatar_url,
-      verified: user.user.emailVerified,
-    });
     return user;
+  };
+
+  const updateUserInfo = async (uid, fname, lname, company, provider) => {
+    if (provider === 'google') {
+      await updateDoc(doc(db, 'profiles', uid), {
+        company,
+      });
+    } else if (provider === 'password') {
+      await updateDoc(doc(db, 'profiles', uid), {
+        fname,
+        lname,
+        company,
+      });
+      const l = await getDocs(query(collection(db, 'lists')));
+      l.docs.map(async (list) => {
+        if (list.data().users?.filter((u) => u.uid === uid).length > 0) {
+          const newList = [...list.data().users];
+          for (let i in newList) {
+            if (newList[i].uid === uid) newList[i].name = `${fname} ${lname}`;
+          }
+          await updateDoc(doc(db, 'lists', list.id), {
+            users: newList,
+          });
+        }
+      });
+    }
   };
 
   const createNewChecklist = async (
@@ -212,10 +226,9 @@ export const FirebaseProvider = ({ children }) => {
     const l = await getDocs(query(collection(db, 'lists')));
 
     const lists = [];
-    l.docs.map((list) => {
+    l.docs.forEach((list) => {
       if (list.data().users?.filter((u) => u.uid === id).length > 0)
-        return lists.push({ ...list.data(), id: list.id });
-      return;
+        lists.push({ ...list.data(), id: list.id });
     });
     return lists;
   };
@@ -272,20 +285,12 @@ export const FirebaseProvider = ({ children }) => {
     const auth = await firebase.auth().signInWithPopup(provider);
     const uid = firebase.auth().currentUser?.uid;
     const uInfo = await getDoc(doc(db, 'profiles', uid));
-    if (uid && !uInfo.exists) {
+    if (!!!uInfo.data()) {
       const profile = {
         created: new Date(),
         company: '',
       };
       await setDoc(doc(db, 'profiles', uid), profile);
-      setUserInfo({
-        id: uid,
-        fname: '',
-        lname: '',
-        company: '',
-        avatar: '',
-        verified: '',
-      });
     }
     return auth;
   };
@@ -296,7 +301,6 @@ export const FirebaseProvider = ({ children }) => {
       .createUserWithEmailAndPassword(email, password);
     auth.user.sendEmailVerification();
     const uid = firebase.auth().currentUser.uid;
-    const verified = firebase.auth().currentUser.emailVerified;
     const avatar_url = `https://avatars.dicebear.com/api/bottts/:${uid}.svg`;
     const profile = {
       created: new Date(),
@@ -306,14 +310,7 @@ export const FirebaseProvider = ({ children }) => {
       company: company ?? '',
     };
     await setDoc(doc(db, 'profiles', uid), profile);
-    setUserInfo({
-      id: uid,
-      fname,
-      lname,
-      avatar: avatar_url,
-      company: company ?? '',
-      verified,
-    });
+
     return auth;
   };
 
@@ -352,6 +349,7 @@ export const FirebaseProvider = ({ children }) => {
         showNotificationSnackbar,
         setShowNotificationSnackbar,
         snackbarNotification,
+        updateUserInfo,
       }}
     >
       {children}

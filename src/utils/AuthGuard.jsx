@@ -4,11 +4,11 @@ import { useNavigate } from 'react-router-dom';
 
 // project imports
 import Loader from '../components/ui/Loader';
-import useAuth from '../hooks/useAuth';
+import useFirebase from '../hooks/useFirebase';
 
 // ==============================|| AUTH GUARD ||============================== //
 const AuthGuard = ({ children, path = '/' }) => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn } = useFirebase();
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 

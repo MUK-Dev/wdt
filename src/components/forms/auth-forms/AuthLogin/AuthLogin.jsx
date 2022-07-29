@@ -27,7 +27,7 @@ import * as Yup from 'yup';
 import { Formik } from 'formik';
 
 // project imports
-import useAuth from '../../../../hooks/useAuth';
+import useFirebase from '../../../../hooks/useFirebase';
 import AnimateButton from '../../../ui/AnimateButton';
 
 // assets
@@ -44,7 +44,7 @@ const AuthLogin = ({ loginProp, setIsLoading, ...others }) => {
   const matchDownSM = useMediaQuery(theme.breakpoints.down('md'));
   const [checked, setChecked] = React.useState(true);
 
-  const { firebaseEmailPasswordSignIn, firebaseGoogleSignIn } = useAuth();
+  const { firebaseEmailPasswordSignIn, firebaseGoogleSignIn } = useFirebase();
   const googleHandler = async () => {
     setIsLoading(true);
     try {

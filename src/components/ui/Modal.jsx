@@ -3,7 +3,7 @@ import { Box, Stack, Paper, Typography, Button } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { motion } from 'framer-motion';
 
-import useAuth from '../../hooks/useAuth';
+import useFirebase from '../../hooks/useFirebase';
 import Loader from './Loader';
 
 const Modal = ({
@@ -14,7 +14,7 @@ const Modal = ({
   roomTitle,
 }) => {
   const theme = useTheme();
-  const { user, requestAccessToList, createNotification } = useAuth();
+  const { user, requestAccessToList, createNotification } = useFirebase();
   const [isLoading, setIsLoading] = useState(false);
 
   const backdrop = {

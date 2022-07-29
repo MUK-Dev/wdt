@@ -11,6 +11,7 @@ import { FirebaseProvider as AuthProvider } from './contexts/FirebaseContext';
 import Home from './pages/Home/Home';
 import CheckListPage from './pages/CheckListPage/CheckListPage';
 import './App.css';
+import Profile from './pages/Profile/Profile';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
               <Route path='/register' element={<Register />} />
               <Route path='/home' element={<Home />} />
               <Route path='/checklist' element={<CheckListPage />} />
+              <Route path='/profile' element={<Profile />} />
             </Routes>
           </BrowserRouter>
         </LocalizationProvider>

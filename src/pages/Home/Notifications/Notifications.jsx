@@ -10,7 +10,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '@mui/material/styles';
 
-import useAuth from '../../../hooks/useAuth';
+import useFirebase from '../../../hooks/useFirebase';
 import Loader from '../../../components/ui/Loader';
 import { newDeadlineNotifications } from '../../../utils/near-deadline-notifications';
 
@@ -28,7 +28,7 @@ const Notifications = ({ lists }) => {
       opacity: 0.5,
     },
   };
-  const { notifications, notificationLoading } = useAuth();
+  const { notifications, notificationLoading } = useFirebase();
 
   return (
     <Paper

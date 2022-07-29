@@ -8,7 +8,8 @@ const EditableContent = ({
   setText,
   label = 'Edit',
   variant = 'h2',
-  canEdit,
+  canEdit = true,
+  title = '',
 }) => {
   const [showText, setShowText] = useState(true);
   const theme = useTheme();
@@ -21,13 +22,12 @@ const EditableContent = ({
       margin='0.2em 0'
       onClick={() => canEdit && setShowText(false)}
     >
-      {text}
+      {`${title} ${text}`}
     </Typography>
   ) : (
     <TextField
       label={label}
       variant='outlined'
-      fullWidth
       value={text}
       color='secondary'
       autoFocus

@@ -25,7 +25,7 @@ import * as Yup from 'yup';
 import { Formik } from 'formik';
 
 // project imports
-import useAuth from '../../../../hooks/useAuth';
+import useFirebase from '../../../../hooks/useFirebase';
 import useScriptRef from '../../../../hooks/useScriptRef';
 import Google from '../../../../assets/images/icons/social-google.svg';
 import AnimateButton from '../../../ui/AnimateButton';
@@ -49,7 +49,7 @@ const AuthRegister = ({ setIsLoading, ...others }) => {
 
   const [strength, setStrength] = React.useState(0);
   const [level, setLevel] = React.useState();
-  const { firebaseRegister, firebaseGoogleSignIn } = useAuth();
+  const { firebaseRegister, firebaseGoogleSignIn } = useFirebase();
 
   const googleHandler = async () => {
     setIsLoading(true);

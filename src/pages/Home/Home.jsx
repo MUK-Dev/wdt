@@ -9,7 +9,7 @@ import UserInfo from './UserInfo/UserInfo';
 import Notifications from './Notifications/Notifications';
 import Loader from '../../components/ui/Loader';
 import AccessList from './AccessList/AccessList';
-import useAuth from '../../hooks/useAuth';
+import useFirebase from '../../hooks/useFirebase';
 
 const Home = () => {
   const right = {
@@ -30,7 +30,7 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isListLoading, setIsListLoading] = useState(false);
   const [lists, setLists] = useState([]);
-  const { getUserLists, user, exitList } = useAuth();
+  const { getUserLists, user, exitList } = useFirebase();
 
   const getData = async () => {
     setIsListLoading(true);

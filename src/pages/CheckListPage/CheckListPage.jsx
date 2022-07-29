@@ -10,7 +10,7 @@ import ListSection from './ListSection/ListSection';
 import SaveSection from './SaveSection/SaveSection';
 import UsersSection from './UsersSection/UsersSection';
 import Loader from '../../components/ui/Loader';
-import useAuth from '../../hooks/useAuth';
+import useFirebase from '../../hooks/useFirebase';
 import ShareSection from './ShareSection/ShareSection';
 import Modal from '../../components/ui/Modal';
 import { disableButton } from '../../utils/disable-button';
@@ -32,7 +32,7 @@ const CheckListPage = () => {
     showNotificationSnackbar,
     setShowNotificationSnackbar,
     snackbarNotification,
-  } = useAuth();
+  } = useFirebase();
   const [url, setUrl] = useState(`${window.location.href}`);
   const [isManager, setIsManager] = useState(false);
   const [canEdit, setCanEdit] = useState(listNo ? false : true);
